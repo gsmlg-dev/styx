@@ -1,0 +1,162 @@
+defmodule Styx.Peer do
+  @moduledoc """
+  The `Peer` module maintains leadership for a particular Styx instance within a cluster.
+
+  Leadership is used by plugins, primarily, to prevent duplicate work across nodes. For example,
+  only the leader's `Cron` plugin will try inserting new jobs. You can use peer leadership to
+  extend Styx with custom plugins, or even within your own application.
+
+  Note a few important details about how peer leadership operates:
+
+  * Each peer checks for leadership at a 30 second interval. When the leader exits it broadcasts a
+    message to all other peers to encourage another one to assume leadership.
+
+  * Each Styx instance supervises a distinct `Styx.Peer` instance. That means that with multiple
+    Styx instances on the same node one instance may be the leader, while the others aren't.
+
+  * Without leadership, global plugins (Cron, Lifeline, Stager, etc.), will not run on any node.
+
+  ## Available Peer Implementations
+
+  There are two built-in peering modules:
+
+  * `Styx.Peers.Database` — uses table-based leadership through the `oban_peers` table and works
+    in any environment, with or without clustering. Only one node (per instance name) will have a
+    row in the peers table, that node is the leader. This is the default.
+
+  * `Styx.Peers.Global` — coordinates global locks through distributed Erlang, requires
+    distributed Erlang.
+
+  You can specify the peering module to use in your Styx configuration:
+
+      config :my_app, Styx,
+        peer: Styx.Peers.Database, # default value
+        ...
+
+  If in doubt, you can call `Styx.config()` to see which module is being used.
+
+  ## Examples
+
+  Check leadership for the default Styx instance:
+
+      Styx.Peer.leader?()
+      # => true
+
+  That is identical to using the name `Styx`:
+
+      Styx.Peer.leader?(Styx)
+      # => true
+
+  Check leadership for a couple of instances:
+
+      Styx.Peer.leader?(Styx.A)
+      # => true
+
+      Styx.Peer.leader?(Styx.B)
+      # => false
+  """
+
+  alias Styx.{Config, Registry}
+
+  require Logger
+
+  @type option :: [name: module(), conf: Config.t(), interval: timeout()]
+
+  @type conf_or_name :: Config.t() | GenServer.name()
+
+  @doc """
+  Starts a peer instance.
+  """
+  @callback start_link([option()]) :: GenServer.on_start()
+
+  @doc """
+  Check whether the current peer instance leads the cluster.
+  """
+  @callback leader?(GenServer.server(), timeout()) :: boolean()
+
+  @doc """
+  Check which node's peer instance currently leads the cluster.
+  """
+  @callback get_leader(GenServer.server(), timeout()) :: nil | String.t()
+
+  @doc false
+  @spec child_spec(Keyword.t()) :: Supervisor.child_spec()
+  def child_spec(opts) do
+    %{peer: {peer, peer_opts}} = Keyword.fetch!(opts, :conf)
+
+    opts =
+      opts
+      |> Keyword.merge(peer_opts)
+      |> Keyword.put_new(:name, peer)
+
+    %{id: opts[:name], start: {peer, :start_link, [opts]}}
+  end
+
+  @doc """
+  Get the name and node of the instance that currently leads the cluster.
+
+  ## Example
+
+  Get the leader node for the default Styx instance:
+
+      Styx.Peer.get_leader()
+      "web.1"
+
+  Get the leader node for an alternate instance named `Styx.Private`
+
+      Styx.Peer.get_leader(Styx.Private)
+      "web.1"
+  """
+  @spec get_leader(conf_or_name, timeout()) :: nil | String.t()
+  def get_leader(conf_or_name \\ Styx, timeout \\ 5_000) do
+    safe_call(conf_or_name, :get_leader, timeout, nil)
+  end
+
+  @doc """
+  Check whether the current instance leads the cluster.
+
+  ## Example
+
+  Check leadership for the default Styx instance:
+
+      Styx.Peer.leader?()
+      # => true
+
+  Check leadership for an alternate instance named `Styx.Private`:
+
+      Styx.Peer.leader?(Styx.Private)
+      # => true
+  """
+  @spec leader?(conf_or_name(), timeout()) :: boolean()
+  def leader?(conf_or_name \\ Styx, timeout \\ 5_000) do
+    safe_call(conf_or_name, :leader?, timeout, false)
+  end
+
+  defp safe_call(%Config{name: name, peer: {peer, _}}, fun, timeout, default) do
+    case Registry.whereis(name, Styx.Peer) do
+      pid when is_pid(pid) ->
+        apply(peer, fun, [pid, timeout])
+
+      _ ->
+        default
+    end
+  catch
+    :exit, {:timeout, _} = reason ->
+      Logger.warning(
+        [
+          message: "Styx.Peer.#{fun}/2 check failed due to #{inspect(reason)}",
+          source: :styx,
+          module: __MODULE__
+        ],
+        domain: [:styx]
+      )
+
+      default
+  end
+
+  defp safe_call(name, fun, timeout, default) do
+    name
+    |> Styx.config()
+    |> safe_call(fun, timeout, default)
+  end
+end

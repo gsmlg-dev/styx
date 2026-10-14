@@ -1,6 +1,6 @@
 # Job Lifecycle
 
-Oban jobs follow a state machine that governs their lifecycle. Each job transitions through
+Styx jobs follow a state machine that governs their lifecycle. Each job transitions through
 distinct states from the moment it's inserted until it reaches completion or another terminal
 state.
 
@@ -21,17 +21,17 @@ Jobs exist in one of eight possible states:
 
 ## Initial States
 
-When you first insert a job into Oban, it enters one of two initial states:
+When you first insert a job into Styx, it enters one of two initial states:
 
 - `available` - The default state for new jobs that should be executed immediately
 - `scheduled` - When you provide a `scheduled_at` timestamp or `scheduled_in` delay
 
 ```elixir
 # Job inserted as "available"
-%{id: 123} |> MyApp.Worker.new() |> Oban.insert()
+%{id: 123} |> MyApp.Worker.new() |> Styx.insert()
 
 # Job inserted as "scheduled"
-%{id: 123} |> MyApp.Worker.new(scheduled_in: 60) |> Oban.insert()
+%{id: 123} |> MyApp.Worker.new(scheduled_in: 60) |> Styx.insert()
 ```
 
 ## Executing State
@@ -64,7 +64,7 @@ After execution, a job will transition to one of these final states:
 
 > #### Cleaning Up Jobs {: .tip}
 >
-> Oban's Pruner only removes final state jobs (`completed`, `cancelled`, and `discarded`). This
+> Styx's Pruner only removes final state jobs (`completed`, `cancelled`, and `discarded`). This
 > prevents your database from growing indefinitely while still providing visibility into recently
 > finished jobs.
 

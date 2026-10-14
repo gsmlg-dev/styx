@@ -1,9 +1,9 @@
 defmodule BenchWorker do
   @moduledoc false
 
-  use Oban.Worker
+  use Styx.Worker
 
-  @impl Oban.Worker
+  @impl Styx.Worker
   def perform(%{args: %{"max" => max, "bin_pid" => bin_pid, "bin_cnt" => bin_cnt}}) do
     pid = BenchHelper.base64_to_term(bin_pid)
     ctn = BenchHelper.base64_to_term(bin_cnt)
@@ -21,7 +21,7 @@ end
 queues = [small: 1, medium: 10, large: 100, xlarge: 500]
 counter = :counters.new(1, [])
 
-Oban.start_link(repo: Oban.Test.Repo, queues: queues)
+Styx.start_link(repo: Styx.Test.Repo, queues: queues)
 
 BenchHelper.reset_db()
 
@@ -36,7 +36,7 @@ insert_and_await = fn queue ->
 
   0..1_000
   |> Enum.map(fn _ -> BenchWorker.new(args, queue: queue) end)
-  |> Oban.insert_all()
+  |> Styx.insert_all()
 
   receive do
     :finished -> :ok

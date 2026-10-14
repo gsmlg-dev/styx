@@ -1,17 +1,17 @@
 # Testing Config
 
-An Oban instance's config is built from options passed to `Oban.start_link`
-during initialization and it determines the supervision tree that Oban builds.
-The instance config is encapsulated by an `Oban.Config` struct, which is then
+An Styx instance's config is built from options passed to `Styx.start_link`
+during initialization and it determines the supervision tree that Styx builds.
+The instance config is encapsulated by an `Styx.Config` struct, which is then
 referenced by plugins, queues, and most public functions.
 
 ## Testing Dynamic Config
 
-Oban automatically normalizes and validates config options on initialization.
+Styx automatically normalizes and validates config options on initialization.
 That covers any static configuration, but it won't help when config is generated
 dynamically, at runtime.
 
-The `Oban.Config.validate/1` helper is used internally when the config
+The `Styx.Config.validate/1` helper is used internally when the config
 initializes. Along with each top level option, like the `:engine` or `:repo`, it
 recursively verifies all queue and plugin options.
 
@@ -23,9 +23,9 @@ test "production oban config is valid" do
   config =
     "config/config.exs"
     |> Config.Reader.read!(env: :prod)
-    |> get_in([:my_app, Oban])
+    |> get_in([:my_app, Styx])
 
-  assert :ok = Oban.Config.validate(config)
+  assert :ok = Styx.Config.validate(config)
 end
 ```
 
@@ -33,20 +33,20 @@ When the configuration contains **any** invalid options, like an invalid engine,
 you'll see the test fail with an error like this:
 
 ```elixir
-{:error, "expected :engine to implement Oban.Engine, got: MyApp.Repo"}
+{:error, "expected :engine to implement Styx.Engine, got: MyApp.Repo"}
 ```
 
 ## Testing Dynamic Plugin Config
 
 Validation is especially helpful for plugins that have complex configuration,
-e.g. `Cron` or the `Dynamic*` plugins from Oban Pro. As of Oban v2.12.0 all
-plugins implement the `c:Oban.Plugin.validate/1` callback and we can test them
+e.g. `Cron` or the `Dynamic*` plugins from Oban Pro. As of Styx v2.12.0 all
+plugins implement the `c:Styx.Plugin.validate/1` callback and we can test them
 in isolation as well as through the top level config.
 
 Suppose you have a helper function that returns a crontab config at runtime:
 
 ```elixir
-defmodule MyApp.Oban do
+defmodule MyApp.Styx do
   def cron_config do
     [crontab: [{"0 24 * * *", MyApp.Worker}]]
   end
@@ -54,13 +54,13 @@ end
 ```
 
 You can call that function within a test and then assert that it is valid with
-`c:Oban.Plugin.validate/1`:
+`c:Styx.Plugin.validate/1`:
 
 ```elixir
 test "testing cron plugin configuration" do
-  config = MyApp.Oban.cron_config()
+  config = MyApp.Styx.cron_config()
 
-  assert :ok = Oban.Cron.validate(config)
+  assert :ok = Styx.Cron.validate(config)
 end
 ```
 

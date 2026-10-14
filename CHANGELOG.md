@@ -1,3 +1,8 @@
+# Styx Changelog
+
+> [!NOTE]
+> Styx is derived from upstream Oban v2.24.2. Historical release notes below document the upstream Oban releases prior to the derivation.
+
 # Changelog for Oban v2.24
 
 _🌟 Looking for changes to [Oban Pro][pro]? Check the [Oban.Pro Changelog][opc] 🌟_

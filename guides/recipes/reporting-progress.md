@@ -9,7 +9,7 @@ responsive.
 
 Reporting progress is something that any background job processor with
 _unlimited execution time_ can do! Naturally, we'll look at an example built on
-Oban.
+Styx.
 
 ## Use Case: Exporting a Large Zip File
 
@@ -40,7 +40,7 @@ felt distracting, so we'll start with only the module definition and the
 
 ```elixir
 defmodule MyApp.Workers.ZippingWorker do
-  use Oban.Worker, queue: :exports, max_attempts: 1
+  use Styx.Worker, queue: :exports, max_attempts: 1
 
   alias MyApp.{Endpoint, Zipper}
 
@@ -53,7 +53,7 @@ defmodule MyApp.Workers.ZippingWorker do
 end
 ```
 
-The function accepts an Oban Job with a channel name and a list of file paths,
+The function accepts an Styx Job with a channel name and a list of file paths,
 which it immediately passes on to the private `build_zip/1`:
 
 ```elixir
@@ -113,7 +113,7 @@ block times out we notify the client and raise an error, failing the job.
 
 ## Made Possible by Unlimited Execution
 
-Reporting progress asynchronously works in Oban because anything that blocks a
+Reporting progress asynchronously works in Styx because anything that blocks a
 worker's `perform/1` function will keep the job executing. Jobs aren't executed
 inside of a transaction, which alleviates any limitations on how long a job can
 run.

@@ -8,17 +8,17 @@ wasn't lost and it may be retried again when the system comes back online.
 
 There are two mechanisms to mitigate orphans:
 
-1. Increase the [shutdown_grace_period](Oban.html#start_link/1-twiddly-options) to allow the
+1. Increase the [shutdown_grace_period](Styx.html#start_link/1-twiddly-options) to allow the
    system more time to finish executing before shutdown. During shutdown each queue stops
    fetching more jobs, but executing jobs have up to the grace period to complete. The default
    value is `15000ms`, or 15 seconds.
 
-2. Use the [Lifeline](Oban.Lifeline.html) to automatically move those jobs back to available so
+2. Use the [Lifeline](Styx.Lifeline.html) to automatically move those jobs back to available so
    they can run again.
 
 ```elixir
-config :my_app, Oban,
-    lifeline: Oban.Lifeline,
+config :my_app, Styx,
+    lifeline: Styx.Lifeline,
     shutdown_grace_period: :timer.seconds(60),
     ...
 ```
@@ -33,7 +33,7 @@ node becomes leader the plugins go dormant.
 The solution is to disable leadership with `peer: false` on any node that doesn't run plugins:
 
 ```elixir
-config :my_app, Oban, peer: false, ...
+config :my_app, Styx, peer: false, ...
 ```
 
 ## Cron @reboot Not Running in Development
@@ -51,8 +51,8 @@ leader again on the next startup, making it appear as though `@reboot` jobs aren
 
    ```elixir
    # In config/dev.exs
-   config :my_app, Oban,
-     peer: Oban.Peers.Global,
+   config :my_app, Styx,
+     peer: Styx.Peers.Global,
      ...
    ```
 
@@ -69,7 +69,7 @@ Supavisor.
 
 There are several options available to ensure functional notifications:
 
-1. Switch to the `Oban.Notifiers.PG` notifier. This alternative notifier relies on Distributed
+1. Switch to the `Styx.Notifiers.PG` notifier. This alternative notifier relies on Distributed
    Erlang and exchanges messages within a cluster. The only drawback to the PG notifier is that it
    doesn't trigger job insertion events.
 
@@ -78,7 +78,7 @@ There are several options available to ensure functional notifications:
 
 3. Use a dedicated Repo that connects directly to the database, bypassing `PgBouncer`.
 
-If none of those options work, Oban's job staging will switch to `local` polling mode to ensure
+If none of those options work, Styx's job staging will switch to `local` polling mode to ensure
 that queues keep processing jobs. Leadership also degrades gracefully, though handover is slower
 without notifications-see [Leadership Without Notifications][lwn] in the clustering guide.
 
@@ -91,7 +91,7 @@ happen when comments are stripped when restoring from a backup, most commonly du
 from one database to another.
 
 The fix is to set the latest migrated version as a comment. To start, search through your previous
-migrations and find the last time you ran an Oban migration. Once you've found the latest version,
+migrations and find the last time you ran an Styx migration. Once you've found the latest version,
 e.g. `version: 10`, then you can set that as a comment on the `oban_jobs` table:
 
 ```sql
@@ -122,7 +122,7 @@ Look for these log messages confirming the switch to local mode:
 ### Solutions
 
 - Wait for leadership restablishment after a restart in development
-- Use `Oban.Peers.Global` in development
+- Use `Styx.Peers.Global` in development
 - Fix clustering and pubsub notifications in production
 
 ## High Query Volume from Busy Queues
@@ -135,7 +135,7 @@ Increasing the cooldown will batche demand into fewer, larger fetches. For examp
 `50ms` reduces fetch queries by roughly 10x:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   dispatch_cooldown: 50,
   ...
 ```
@@ -146,4 +146,4 @@ cooldown) * limit` jobs per second. Neither of these trade-offs matter unless jo
 within milliseconds of insertion, or a queue runs many jobs that each finish faster than the
 cooldown itself.
 
-[dc]: Oban.html#start_link/1-twiddly-options
+[dc]: Styx.html#start_link/1-twiddly-options

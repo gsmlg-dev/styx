@@ -1,19 +1,19 @@
 # Writing Plugins
 
-Oban supports the use of plugins to extend its base functionality. A plugin is
+Styx supports the use of plugins to extend its base functionality. A plugin is
 any module that begins a process and exposes a `start_link/1` function. That
 means a plugin may be a `GenServer`, an `Agent`, a `Task`, or any other `OTP`
 behaviour that manages a process. Realistically you'll want a long lived process
-to complement Oban's behaviour, which makes a `GenServer` or `GenStateMachine`
+to complement Styx's behaviour, which makes a `GenServer` or `GenStateMachine`
 ideal.
 
-Upon startup, Oban dynamically injects each plugin into its supervision tree and
+Upon startup, Styx dynamically injects each plugin into its supervision tree and
 passes a few base options along with any custom configuration for the plugin.
 
 Every plugin receives these base options:
 
-* `:conf` — An `Oban.Config` struct, which contains all of the options provided
-  to `Oban.start_link/1` in a validated and normalized form.
+* `:conf` — An `Styx.Config` struct, which contains all of the options provided
+  to `Styx.start_link/1` in a validated and normalized form.
 * `:name` — A unique via tuple scoped to the current supervision tree. The name
   may be used later to support helper/interface functions.
 
@@ -23,26 +23,26 @@ Let's look at a tiny example plugin to get a feel for how options are passed in
 and how they run. Our plugin will periodically generate a table of counts for
 each `queue` / `state` combination and then print it out. It isn't an amazingly
 useful plugin, but it demonstrates how to handle options, work with the
-`Oban.Config` struct, and periodically interact with the `oban_jobs` table.
+`Styx.Config` struct, and periodically interact with the `oban_jobs` table.
 
 ```elixir
 defmodule MyApp.Plugins.Breakdown do
-  @behaviour Oban.Plugin
+  @behaviour Styx.Plugin
 
   use GenServer
 
   import Ecto.Query, only: [group_by: 3, select: 3]
 
-  @impl Oban.Plugin
+  @impl Styx.Plugin
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
 
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
-  @impl Oban.Plugin
+  @impl Styx.Plugin
   def validate(opts) do
-    Oban.Validation.validate_schema(opts,
+    Styx.Validation.validate_schema(opts,
       conf: :any,
       name: :any,
       interval: :pos_integer
@@ -59,9 +59,9 @@ defmodule MyApp.Plugins.Breakdown do
   @impl GenServer
   def handle_info(:poll, %{conf: conf} = state) do
     breakdown =
-      Oban.Repo.all(
+      Styx.Repo.all(
         conf,
-        Oban.Job
+        Styx.Job
         |> group_by([j], [j.queue, j.state])
         |> select([j], {j.queue, j.state, count(j.id)})
       )
@@ -102,41 +102,41 @@ of `{queue, state, count}` tuples like this:
 ]
 ```
 
-Now all that is left is to adding the `Breakdown` module to Oban's plugin list:
+Now all that is left is to adding the `Breakdown` module to Styx's plugin list:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   plugins: [
     {MyApp.Plugins.Breakdown, interval: :timer.seconds(10)}
   ]
   ...
 ```
 
-In the configuration we're only providing the `:interval` value. Oban injects
+In the configuration we're only providing the `:interval` value. Styx injects
 the `:name` and `:conf` automatically.
 
 ## Calling Interface Functions
 
 Plugins are named dynamically using `via` tuples, which is an effective way to
-manage process registration for multiple unique Oban instances. However, it
+manage process registration for multiple unique Styx instances. However, it
 makes writing interface functions for plugins a little more complicated. The
-solution is to make use of the `Oban.Registry` for process discovery.
+solution is to make use of the `Styx.Registry` for process discovery.
 
 Imagine adding a `pause` interface function to the `Breakdown` plugin we built
 above:
 
 ```elixir
-alias Oban.Registry
+alias Styx.Registry
 
-def pause(oban_name \\ Oban) do
+def pause(oban_name \\ Styx) do
   oban_name
   |> Registry.whereis({:plugin, __MODULE__})
   |> GenServer.call(:pause)
 end
 ```
 
-The function accepts an `oban_name` argument with a default of `Oban`, which is
-the default name for an Oban supervision tree. It then calls `whereis/2` with a
+The function accepts an `oban_name` argument with a default of `Styx`, which is
+the default name for an Styx supervision tree. It then calls `whereis/2` with a
 `{:plugin, plugin_name}` tuple and uses the returned `pid` to call the plugin
 process.
 
@@ -152,7 +152,7 @@ MyApp.Plugins.Breakdown.pause(MyApp.OtherOban)
 
 ## Caveats
 
-Plugins run directly within Oban's supervision tree. A badly behaving plugin,
+Plugins run directly within Styx's supervision tree. A badly behaving plugin,
 e.g. a plugin that crashes repeatedly, may bring down the entire supervision
 tree. Be sure that your plugin has safety mechanisms in place to prevent
 repeated crashes during startup.

@@ -38,7 +38,7 @@ after it executes:
 
 ```elixir
 defmodule MyApp.Workers.TimezoneWorker do
-  use Oban.Worker
+  use Styx.Worker
 
   import Ecto.Query
 
@@ -53,7 +53,7 @@ defmodule MyApp.Workers.TimezoneWorker do
         next_id when is_integer(next_id) ->
           %{id: next_id, backfill: true}
           |> new(scheduled_in: @backfill_delay)
-          |> Oban.insert()
+          |> Styx.insert()
 
         nil ->
           :ok
@@ -94,7 +94,7 @@ the recursive backfill. Assuming the `id` of the first user is `1`, you can
 start the job from an `iex` console:
 
 ```elixir
-iex> %{id: 1, backfill: true} |> MyApp.Workers.TimezoneWorker.new() |> Oban.insert()
+iex> %{id: 1, backfill: true} |> MyApp.Workers.TimezoneWorker.new() |> Styx.insert()
 ```
 
 Now the jobs will chug along at a steady rate of one per second until the
@@ -107,5 +107,5 @@ timezone, the backfill is complete and recursion will stop.
 
 This was a relatively simple example, and hopefully it illustrates the power and
 flexibility of recursive jobs. Recursive jobs are a general pattern and aren't
-specific to Oban. In fact, aside from the `use Oban.Worker` directive there
-isn't anything specific to Oban in the recipe!
+specific to Styx. In fact, aside from the `use Styx.Worker` directive there
+isn't anything specific to Styx in the recipe!

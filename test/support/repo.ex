@@ -1,16 +1,16 @@
-defmodule Oban.Test.Repo do
+defmodule Styx.Test.Repo do
   @moduledoc false
 
   use Ecto.Repo,
-    otp_app: :oban,
+    otp_app: :styx,
     adapter: Ecto.Adapters.Postgres
 end
 
-defmodule Oban.Test.DynamicRepo do
+defmodule Styx.Test.DynamicRepo do
   @moduledoc false
 
   use Ecto.Repo,
-    otp_app: :oban,
+    otp_app: :styx,
     adapter: Ecto.Adapters.Postgres
 
   def use_dynamic_repo(pid) do
@@ -18,31 +18,31 @@ defmodule Oban.Test.DynamicRepo do
   end
 
   def init(_, _) do
-    {:ok, Oban.Test.Repo.config()}
+    {:ok, Styx.Test.Repo.config()}
   end
 end
 
-defmodule Oban.Test.LiteRepo do
+defmodule Styx.Test.LiteRepo do
   @moduledoc false
 
-  use Ecto.Repo, otp_app: :oban, adapter: Ecto.Adapters.SQLite3
+  use Ecto.Repo, otp_app: :styx, adapter: Ecto.Adapters.SQLite3
 end
 
-defmodule Oban.Test.DolphinRepo do
+defmodule Styx.Test.DolphinRepo do
   @moduledoc false
 
-  use Ecto.Repo, otp_app: :oban, adapter: Ecto.Adapters.MyXQL
+  use Ecto.Repo, otp_app: :styx, adapter: Ecto.Adapters.MyXQL
 end
 
-defmodule Oban.Test.UnboxedRepo do
+defmodule Styx.Test.UnboxedRepo do
   @moduledoc false
 
   use Ecto.Repo,
-    otp_app: :oban,
+    otp_app: :styx,
     adapter: Ecto.Adapters.Postgres
 
   def init(_, _) do
-    config = Oban.Test.Repo.config()
+    config = Styx.Test.Repo.config()
 
     {:ok, Keyword.delete(config, :pool)}
   end

@@ -1,6 +1,6 @@
 # Defining Queues
 
-Queues are the foundation of how Oban organizes and processes jobs. They allow you to:
+Queues are the foundation of how Styx organizes and processes jobs. They allow you to:
 
 - Separate different types of work (e.g., emails, report generation, media processing)
 - Control the concurrency of job execution
@@ -16,7 +16,7 @@ maximum number of concurrent jobs. The following configuration would start four 
 concurrency ranging from 5 to 50:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   queues: [default: 10, mailers: 20, events: 50, media: 5],
   repo: MyApp.Repo
 ```
@@ -33,7 +33,7 @@ In this example:
 For more control, you can use an expanded form to configure queues with individual overrides:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   queues: [
     default: 10,
     mailers: [limit: 20, dispatch_cooldown: 50],
@@ -47,7 +47,7 @@ This expanded configuration demonstrates several advanced options:
 
 * The `mailers`  queue has a dispatch cooldown of 50ms between job fetching
 * The `events` queue starts in a paused state, which means it won't process anything until
-  `Oban.resume_queue/2` is called to start it
+  `Styx.resume_queue/2` is called to start it
 * The `media` queue uses a global limit (an Oban Pro feature)
 
 ### Paused Queues
@@ -63,13 +63,13 @@ This is useful for:
 You can resume a paused queue programmatically:
 
 ```elixir
-Oban.resume_queue(queue: :events)
+Styx.resume_queue(queue: :events)
 ```
 
 And pause an active queue:
 
 ```elixir
-Oban.pause_queue(queue: :media)
+Styx.pause_queue(queue: :media)
 ```
 
 ## Queue Planning Guidelines

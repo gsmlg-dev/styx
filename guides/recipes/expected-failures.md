@@ -11,10 +11,10 @@ every failure may be undesirable.
 ## Use Case: Silencing Initial Notifications for Flaky Services
 
 One solution for reducing noisy error notifications is to start reporting only
-after a job has failed several times. Oban uses [Telemetry][tele] to make
+after a job has failed several times. Styx uses [Telemetry][tele] to make
 reporting errors and exceptions a simple matter of attaching a handler function.
 In this example we will extend [Honeybadger][hb] reporting from the
-`Oban.Telemetry` documentation, but account for the number of processing attempts.
+`Styx.Telemetry` documentation, but account for the number of processing attempts.
 
 To start, we'll define a `Reportable` [protocol][pro] with a single
 `reportable?/2` function:
@@ -38,7 +38,7 @@ of `Reportable` within the worker module:
 
 ```elixir
 defmodule MyApp.Workers.FlakyWorker do
-  use Oban.Worker
+  use Styx.Worker
 
   defstruct []
 
@@ -78,7 +78,7 @@ defmodule MyApp.ErrorReporter do
 
   def maybe_get_worker_struct(worker) do
     try do
-      {:ok, module} = Oban.Worker.from_string(worker)
+      {:ok, module} = Styx.Worker.from_string(worker)
 
       struct(module)
     rescue
@@ -91,7 +91,7 @@ end
 Attach the failure handler somewhere in your `application.ex` module:
 
 ```elixir
-:telemetry.attach("oban-errors", [:oban, :job, :exception], &ErrorReporter.handle_event/4, nil)
+:telemetry.attach("oban-errors", [:styx, :job, :exception], &ErrorReporter.handle_event/4, nil)
 ```
 
 With the failure handler attached you will start getting error reports **only
@@ -99,7 +99,7 @@ after the third error**.
 
 ### Giving Time to Recover
 
-If a service is especially flaky you may find that Oban's default backoff
+If a service is especially flaky you may find that Styx's default backoff
 strategy is too fast. By defining a custom `backoff` function on the
 `FlakyWorker` we can set a linear delay before retries:
 

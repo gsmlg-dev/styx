@@ -5,7 +5,7 @@ job to repeat indefinitely with a fixed amount of time between executions. The
 part that makes it "reliable" is the guarantee that we'll keep retrying the
 job's business logic when the job retries, but we'll **only schedule the next
 occurrence once**. In order to achieve this guarantee we'll make use of the
-`perform` function to receive a complete `Oban.Job` struct.
+`perform` function to receive a complete `Styx.Job` struct.
 
 Time for illustrative example!
 
@@ -19,7 +19,7 @@ first attempt.
 
 ```elixir
 defmodule MyApp.Workers.ScheduledWorker do
-  use Oban.Worker, queue: :scheduled, max_attempts: 10
+  use Styx.Worker, queue: :scheduled, max_attempts: 10
 
   alias MyApp.Mailer
 
@@ -29,7 +29,7 @@ defmodule MyApp.Workers.ScheduledWorker do
   def perform(%{args: %{"email" => email} = args, attempt: 1}) do
     args
     |> new(scheduled_in: @one_day)
-    |> Oban.insert!()
+    |> Styx.insert!()
 
     Mailer.deliver_email(email)
   end
@@ -56,7 +56,7 @@ approach is more accurate and entirely self contained—when and if the digest
 interval changes the scheduling will pick it up automatically once our code
 deploys.
 
-_An [extensive discussion][oi27] on the Oban issue tracker prompted this example
+_An [extensive discussion][oi27] on the Styx issue tracker prompted this example
 along with the underlying feature that made it possible._
 
 [oi27]: https://github.com/oban-bg/oban/issues/27
@@ -70,14 +70,14 @@ resolve to the very-near-future, for example:
 # 1 second from now
 %{}
 |> new(scheduled_in: 1)
-|> Oban.insert()
+|> Styx.insert()
 
 # 500 milliseconds from now
 very_soon = DateTime.utc_now() |> DateTime.add(500, :millisecond)
 
 %{}
 |> new(scheduled_at: very_soon)
-|> Oban.insert()
+|> Styx.insert()
 ```
 
 your workers may not be aware of/attempt to perform the job until the next tick as specified by the

@@ -8,9 +8,9 @@ are *executed* concurrently.
 Uniqueness is based on a combination of job attributes based on the following options:
 
   * `:period` — The number of seconds until a job is no longer considered duplicate. You should
-    always specify a period, otherwise Oban will default to 60 seconds. `:infinity` can be used to
+    always specify a period, otherwise Styx will default to 60 seconds. `:infinity` can be used to
     indicate the job be considered a duplicate as long as jobs are retained (see
-    `Oban.Pruner`).
+    `Styx.Pruner`).
 
   * `:fields` — The fields to compare when evaluating uniqueness. The available fields are
     `:args`, `:queue`, `:worker`, and `:meta`. `:fields` defaults to `[:worker, :queue, :args]`.
@@ -45,13 +45,13 @@ The simplest form of uniqueness will configure uniqueness for as long as a match
 the database, regardless of state:
 
 ```elixir
-use Oban.Worker, unique: true
+use Styx.Worker, unique: true
 ```
 
 Here's a more complex example which uses multiple options:
 
 ```elixir
-use Oban.Worker,
+use Styx.Worker,
   unique: [
     # Jobs should be unique for 2 minutes...
     period: {2, :minutes},
@@ -69,7 +69,7 @@ use Oban.Worker,
 
 > #### Unique Guarantees {: .tip}
 > 
-> Oban strives for uniqueness of jobs through transactional locks and database queries. Uniqueness
+> Styx strives for uniqueness of jobs through transactional locks and database queries. Uniqueness
 > *does not* rely on unique constraints in the database, which leaves it prone to race conditions
 > in some circumstances.
 >
@@ -84,7 +84,7 @@ Understanding the distinction between uniqueness and concurrency is crucial for 
 efficient processing pipelines. While these concepts may seem related, they operate at
 different stages of a job's lifecycle.
 
-Uniqueness operates at **job insertion time**. When a job is marked as unique, Oban checks
+Uniqueness operates at **job insertion time**. When a job is marked as unique, Styx checks
 whether an identical job already exists in the queue before inserting a new one.
 
 * **When it applies**-During job insertion
@@ -98,7 +98,7 @@ according to the queue's concurrency settings.
 For example, given the following configuration that allows 10 concurrent email jobs:
 
 ```elixir
-config :my_app, Oban, queues: [emails: 10]
+config :my_app, Styx, queues: [emails: 10]
 ```
 
 These 10 unique jobs will all run concurrently:
@@ -106,21 +106,21 @@ These 10 unique jobs will all run concurrently:
 ```elixir
 1..10
 |> Enum.map(&MyApp.EmailWorker.new(%{user_id: &1}, unique: true))
-|> Oban.insert_all()
+|> Styx.insert_all()
 ```
 
 To restrict the number of jobs that run at once you must set concurrency accordingly.
 
 ## Detecting Conflicts
 
-When unique settings match an existing job, the return value of `Oban.insert/2` is still `{:ok,
+When unique settings match an existing job, the return value of `Styx.insert/2` is still `{:ok,
 job}`. However, you can detect a unique conflict by checking the job's `:conflict?` field. If
 there was an existing job, the field is `true`; otherwise it is `false`.
 
 You can use the `:conflict?` field to customize responses after insert:
 
 ```elixir
-case Oban.insert(changeset) do
+case Styx.insert(changeset) do
   {:ok, %Job{id: nil, conflict?: true}} ->
     {:error, :failed_to_acquire_lock}
 
@@ -174,11 +174,11 @@ UrgentWorker.new(args, scheduled_in: 1, replace: [scheduled: [:scheduled_at]])
 > UniqueWorker.new(new_args, replace: [executing: [:args]])
 > ```
 >
-> then Oban will update `:args`, but the job will continue executing with the original value.
+> then Styx will update `:args`, but the job will continue executing with the original value.
 
 ## Specifying Fields and Keys
 
-The `:fields` option determines which high-level job attributes Oban will consider when
+The `:fields` option determines which high-level job attributes Styx will consider when
 checking for uniqueness, including `:args`, `:queue`, `:worker`, and `:meta`.
 
 When `:args` or `:meta` are included in the `:fields` list, the `:keys` option provides additional
@@ -189,11 +189,11 @@ Let's see this with an example:
 
 ```elixir
 # This compares the entire args map
-use Oban.Worker,
+use Styx.Worker,
   unique: [fields: [:worker, :queue, :args]]
 
 # This compares only the :url key within the args map
-use Oban.Worker,
+use Styx.Worker,
   unique: [keys: [:url], fields: [:worker, :queue, :args]]
 ```
 

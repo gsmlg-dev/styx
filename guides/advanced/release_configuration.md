@@ -1,6 +1,6 @@
 # Release Configuration
 
-While having the same Oban configuration for every environment might be fine,
+While having the same Styx configuration for every environment might be fine,
 there are certainly times you might want to make changes for a specific
 environment. For example, you may want to increase or decrease a queue's
 concurrency.
@@ -14,7 +14,7 @@ Providers][mcp]:
 ```elixir
 defmodule MyApp.ConfigProvider do
   @moduledoc """
-  Provide release configuration for Oban Queue Concurrency
+  Provide release configuration for Styx Queue Concurrency
   """
 
   @behaviour Config.Provider
@@ -27,7 +27,7 @@ defmodule MyApp.ConfigProvider do
         config
 
       queues ->
-        Config.Reader.merge(config, ingestion: [{Oban, [queues: queues]}])
+        Config.Reader.merge(config, ingestion: [{Styx, [queues: queues]}])
     end
   end
 

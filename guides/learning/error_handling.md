@@ -1,17 +1,17 @@
 # Error Handling
 
-This page guides you through handling and reporting errors in Oban.
+This page guides you through handling and reporting errors in Styx.
 
 Jobs can fail in expected or unexpected ways. To mark a job as failed, you can return `{:error,
-reason}` from a worker's [`perform/1` callback](`c:Oban.Worker.perform/1`), as documented in the
-`t:Oban.Worker.result/0` type. A job can also fail because of unexpected raised errors or exits.
+reason}` from a worker's [`perform/1` callback](`c:Styx.Worker.perform/1`), as documented in the
+`t:Styx.Worker.result/0` type. A job can also fail because of unexpected raised errors or exits.
 
 In any case, when a job fails the details of the failure are recorded in the `errors` array on the
-`Oban.Job` struct.
+`Styx.Job` struct.
 
 ## Error Details
 
-Oban stores execution errors as a list of maps (`t:Oban.Job.errors/0`). Each error contains the
+Styx stores execution errors as a list of maps (`t:Styx.Job.errors/0`). Each error contains the
 following keys:
 
   * `:at` — The UTC timestamp when the error occurred at
@@ -32,7 +32,7 @@ attempts grows exponentially (8s, 16s, and so on), and a randomized "jitter" is 
 each attempt, so that chances of jobs overlapping when being retried go down. So, a job could be
 retried after 7.3s, then 17.1s, and so on.
 
-See the `Oban.Worker` documentation on "Customizing Backoff" for alternative backoff strategies.
+See the `Styx.Worker` documentation on "Customizing Backoff" for alternative backoff strategies.
 
 ### Limiting Retries
 
@@ -41,7 +41,7 @@ By default, jobs are retried up to 20 times. The number of retries is controlled
 instruct a worker to discard jobs after three failures:
 
 ```elixir
-use Oban.Worker, queue: :limited, max_attempts: 3
+use Styx.Worker, queue: :limited, max_attempts: 3
 ```
 
 ## Reporting Errors
@@ -54,13 +54,13 @@ defmodule MyApp.ErrorReporter do
   def attach do
     :telemetry.attach(
       "oban-errors",
-      [:oban, :job, :exception],
+      [:styx, :job, :exception],
       &__MODULE__.handle_event/4,
       []
     )
   end
 
-  def handle_event([:oban, :job, :exception], measure, meta, _) do
+  def handle_event([:styx, :job, :exception], measure, meta, _) do
     Honeybadger.notify(meta.reason, stacktrace: meta.stacktrace)
   end
 end
@@ -74,11 +74,11 @@ any other application monitoring platform.
 
 ### Built-in Reporting
 
-Some error-reporting and application-monitoring services support reporting Oban errors out of the
+Some error-reporting and application-monitoring services support reporting Styx errors out of the
 box:
 
-  - Sentry — [Oban integration documentation][sentry-integration]
-  - AppSignal — [Oban integration documentation][appsignal-integration]
+  - Sentry — [Styx integration documentation][sentry-integration]
+  - AppSignal — [Styx integration documentation][appsignal-integration]
 
 [honeybadger]: https://www.honeybadger.io
 [sentry-integration]: https://docs.sentry.io/platforms/elixir/integrations/oban

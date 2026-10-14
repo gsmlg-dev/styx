@@ -1,9 +1,9 @@
 defmodule BenchWorker do
   @moduledoc false
 
-  use Oban.Worker
+  use Styx.Worker
 
-  @impl Oban.Worker
+  @impl Styx.Worker
   def perform(%{args: %{"max" => max, "bin_pid" => bin_pid, "bin_cnt" => bin_cnt}}) do
     pid = BenchHelper.base64_to_term(bin_pid)
     ctn = BenchHelper.base64_to_term(bin_cnt)
@@ -31,7 +31,7 @@ insert_and_await = fn _engine ->
 
   0..1_000
   |> Enum.map(fn _ -> BenchWorker.new(args, queue: :default) end)
-  |> Oban.insert_all()
+  |> Styx.insert_all()
 
   receive do
     :finished -> :ok
@@ -43,21 +43,21 @@ end
 Benchee.run(
   %{"Insert & Execute" => insert_and_await},
   inputs: %{
-    "Basic" => {Oban.Engines.Basic, Oban.Test.Repo},
-    "Lite" => {Oban.Engines.Lite, Oban.Test.LiteRepo}
+    "Basic" => {Styx.Engines.Basic, Styx.Test.Repo},
+    "Lite" => {Styx.Engines.Lite, Styx.Test.LiteRepo}
   },
   before_scenario: fn {engine, repo} ->
-    Oban.start_link(
+    Styx.start_link(
       engine: engine,
-      peer: Oban.Peers.Global,
+      peer: Styx.Peers.Global,
       prefix: prefix,
       queues: [default: 10],
       repo: repo
     )
   end,
   after_scenario: fn _ ->
-    Oban
-    |> Oban.Registry.whereis()
+    Styx
+    |> Styx.Registry.whereis()
     |> Supervisor.stop()
   end
 )

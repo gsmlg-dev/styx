@@ -1,6 +1,6 @@
 # Clustering
 
-Oban supports running in clusters of nodes. It supports both nodes that are connected to each
+Styx supports running in clusters of nodes. It supports both nodes that are connected to each
 other (via *distributed Erlang*), as well as nodes that are not connected to each other but that
 communicate via the database's pubsub mechanism.
 
@@ -20,37 +20,37 @@ to polling in local mode.
 
 ## Leadership and Peer Configuration
 
-Oban uses a peer-based leadership system to coordinate work across nodes in a cluster. Leadership
+Styx uses a peer-based leadership system to coordinate work across nodes in a cluster. Leadership
 is essential for preventing duplicate work—only the leader node runs global plugins like `Cron`,
 `Lifeline`, and `Stager`.
 
 ### How Leadership Works
 
-* Each Oban instance checks for leadership at 30-second intervals
+* Each Styx instance checks for leadership at 30-second intervals
 * When the current leader exits, it broadcasts a message encouraging other nodes to assume
   leadership
-* Only one node per Oban instance name can be the leader at any time
+* Only one node per Styx instance name can be the leader at any time
 * Without leadership, global plugins won't run on any node
 
 ### Leadership Without Notifications
 
 When a leader exits it broadcasts a message so another node can assume leadership immediately.
-That message travels over pubsub, which isn't available when `Oban.Notifiers.Postgres` runs behind
+That message travels over pubsub, which isn't available when `Styx.Notifiers.Postgres` runs behind
 a connection pooler in transaction mode, like [pg_bouncer] or [Supavisor]. Leadership still
 transfers correctly in that situation, but only after the current leader's lease expires, which
 takes up to 30 seconds.
 
-Switching to `Oban.Notifiers.PG` restores immediate handover for clustered applications, and
-`Oban.Peers.Global` avoids the lease entirely.
+Switching to `Styx.Notifiers.PG` restores immediate handover for clustered applications, and
+`Styx.Peers.Global` avoids the lease entirely.
 
 ### Available Peer Implementations
 
-Oban provides two peer implementations:
+Styx provides two peer implementations:
 
-* `Oban.Peers.Database` — Uses the `oban_peers` table for leadership coordination. Works in any
+* `Styx.Peers.Database` — Uses the `oban_peers` table for leadership coordination. Works in any
   environment, with or without clustering. This is the default and recommended for production.
 
-* `Oban.Peers.Global` — Uses Erlang's `:global` module for leadership. Requires Distributed
+* `Styx.Peers.Global` — Uses Erlang's `:global` module for leadership. Requires Distributed
   Erlang, but handles development restarts more gracefully. Recommended for development
   environments where leadership delays can be problematic.
 
@@ -62,12 +62,12 @@ don't run plugins).
 
 ```elixir
 # Use in development for faster leadership transitions
-config :my_app, Oban,
-  peer: Oban.Peers.Global,
+config :my_app, Styx,
+  peer: Styx.Peers.Global,
   ...
 
 # Disable leadership on web-only nodes that don't run plugins
-config :my_app, Oban,
+config :my_app, Styx,
   peer: false,
   ...
 ```

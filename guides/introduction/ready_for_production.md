@@ -1,17 +1,17 @@
 # Ready for Production
 
-There are a few additional bits of configuration to consider before you're ready to run Oban in
+There are a few additional bits of configuration to consider before you're ready to run Styx in
 production. In development and test environments, job data is short lived and there's no scale to
 contend with. Now we'll dig into enabling introspection, external observability, and maintaining
 database health.
 
 ## Logging
 
-Oban heavily utilizes Telemetry for instrumentation at every level. From job execution, plugin
+Styx heavily utilizes Telemetry for instrumentation at every level. From job execution, plugin
 activity, through to every database call there's a telemetry event to hook into.
 
-The simplest way to leverage Oban's telemetry usage is through the default logger, available with
-`Oban.Telemetry.attach_default_logger/1`. Attach the logger in your `application.ex`:
+The simplest way to leverage Styx's telemetry usage is through the default logger, available with
+`Styx.Telemetry.attach_default_logger/1`. Attach the logger in your `application.ex`:
 
 ```elixir
 defmodule MyApp.Application do
@@ -19,7 +19,7 @@ defmodule MyApp.Application do
 
   @impl Application
   def start(_type, _args) do
-    Oban.Telemetry.attach_default_logger()
+    Styx.Telemetry.attach_default_logger()
 
     children = [
       ...
@@ -35,21 +35,21 @@ option.
 For example, to log without encoding at the `:debug` level:
 
 ```elixir
-Oban.Telemetry.attach_default_logger(encode: false, level: :debug)
+Styx.Telemetry.attach_default_logger(encode: false, level: :debug)
 ```
 
 ## Pruning Jobs
 
 Job introspection and uniqueness relies on keeping job rows in the database after they have
-executed. To prevent the `oban_jobs` table from growing indefinitely, the `Oban.Pruner`
+executed. To prevent the `oban_jobs` table from growing indefinitely, the `Styx.Pruner`
 plugin provides out-of-band deletion of `completed`, `cancelled` and `discarded` jobs.
 
 Retaining jobs for 1 day is a conservative starting point. Depending on throughput and how long
 you need jobs for introspection or uniqueness, you may wish to keep them longer. Configure the
-`pruner` with a `max_age`, either as a count of seconds or an `Oban.Period` tuple:
+`pruner` with a `max_age`, either as a count of seconds or an `Styx.Period` tuple:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   pruner: [max_age: {1, :day}],
   ...
 ```
@@ -62,7 +62,7 @@ and it may be retried again when the system comes back online.
 
 There are two mechanisms to mitigate orphans:
 
-1. Use the `Oban.Lifeline` to automatically move those jobs back to available so they can run
+1. Use the `Styx.Lifeline` to automatically move those jobs back to available so they can run
    again.
 2. Increase the `shutdown_grace_period` to allow the system more time to finish executing before
    shutdown.
@@ -74,7 +74,7 @@ Consider adding `Lifeline` and configure it to rescue after a generous period of
 hour:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   lifeline: [rescue_after: {1, :hour}],
   ...
 ```
@@ -90,8 +90,8 @@ or any other application monitoring platform.
 
 Some libraries like AppSignal, ErrorTracker or Sentry automatically handle these events without 
 requiring any extra code on your application. You can take a look at ErrorTracker's 
-[Oban integration](https://github.com/elixir-error-tracker/error-tracker/blob/main/lib/error_tracker/integrations/oban.ex) 
-as an example on how to attach to and use `Oban.Telemetry` events.
+[Styx integration](https://github.com/elixir-error-tracker/error-tracker/blob/main/lib/error_tracker/integrations/oban.ex) 
+as an example on how to attach to and use `Styx.Telemetry` events.
 
 If you need a custom integration you can add a reporter module that fit your needs. 
 Here's an example reporter module for [Sentry](https://hex.pm/packages/sentry):
@@ -99,10 +99,10 @@ Here's an example reporter module for [Sentry](https://hex.pm/packages/sentry):
 ```elixir
 defmodule MyApp.ObanReporter do
   def attach do
-    :telemetry.attach("oban-errors", [:oban, :job, :exception], &__MODULE__.handle_event/4, [])
+    :telemetry.attach("oban-errors", [:styx, :job, :exception], &__MODULE__.handle_event/4, [])
   end
 
-  def handle_event([:oban, :job, :exception], measure, meta, _) do
+  def handle_event([:styx, :job, :exception], measure, meta, _) do
     extra =
       meta.job
       |> Map.take([:id, :args, :meta, :queue, :worker])
@@ -129,20 +129,20 @@ Now you're ready to ship to production with essential logging, error reporting, 
 job maintenance.
 
 For additional observability and introspection, consider integrating with one of these external
-tools built on `Oban.Telemetry`:
+tools built on `Styx.Telemetry`:
 
-* [Oban Web](https://hex.pm/packages/oban_web)—an official Oban package, it's a view of jobs,
+* [Styx Web](https://hex.pm/packages/oban_web)—an official Styx package, it's a view of jobs,
   queues, and metrics that you host directly within your application. Powered by Phoenix LiveView
-  and Oban Metrics, it is extremely lightweight and continuously updated.
+  and Styx Metrics, it is extremely lightweight and continuously updated.
 
 * [PromEx](https://hex.pm/packages/prom_ex)—Prometheus metrics and Grafana dashboards based on
   metrics from job events, producer events, and also from internal polling jobs to monitor queue
   sizes.
 
 * [AppSignal](https://docs.appsignal.com/elixir/integrations/oban.html)—The AppSignal for Elixir
-  package instruments jobs performed by Oban workers, and collects metrics about your jobs'
+  package instruments jobs performed by Styx workers, and collects metrics about your jobs'
   performance.
 
 * [ErrorTracker](https://hex.pm/packages/error_tracker)—an Elixir-based open source error tracking
-  solution that automatically integrates with Oban. It allows you to store and view exceptions on
+  solution that automatically integrates with Styx. It allows you to store and view exceptions on
   your app without external services. It's powered by Telemetry, Ecto and Phoenix LiveView.

@@ -1,54 +1,38 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/oban-bg/oban/main/assets/oban-logotype-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/oban-bg/oban/main/assets/oban-logotype-light.png">
-    <img alt="Oban logo" src="https://raw.githubusercontent.com/oban-bg/oban/main/assets/oban-logotype-light.png" width="320">
-  </picture>
-</p>
+# Styx
 
 <p align="center">
   Robust job processing in Elixir, backed by modern PostgreSQL, MySQL, and SQLite3.
-  Reliable, <br /> observable, and loaded with <a href="#features">enterprise grade features</a>.
+  Reliable, <br /> observable, and loaded with enterprise grade features.
 </p>
 
 <p align="center">
-  <a href="https://hex.pm/packages/oban">
-    <img alt="Hex Version" src="https://img.shields.io/hexpm/v/oban.svg">
+  <a href="https://hex.pm/packages/styx">
+    <img alt="Hex Version" src="https://img.shields.io/hexpm/v/styx.svg">
   </a>
 
-  <a href="https://oban.hexdocs.pm">
-    <img alt="Hex Docs" src="http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat">
+  <a href="https://hexdocs.pm/styx">
+    <img alt="Hex Docs" src="https://img.shields.io/badge/hex.pm-docs-green.svg?style=flat">
   </a>
 
-  <a href="https://github.com/oban-bg/oban/actions">
-    <img alt="CI Status" src="https://github.com/oban-bg/oban/workflows/ci/badge.svg">
+  <a href="https://github.com/gsmlg-dev/styx/actions">
+    <img alt="CI Status" src="https://github.com/gsmlg-dev/styx/workflows/ci/badge.svg">
   </a>
 
   <a href="https://opensource.org/licenses/Apache-2.0">
-    <img alt="Apache 2 License" src="https://img.shields.io/hexpm/l/oban">
+    <img alt="Apache 2 License" src="https://img.shields.io/hexpm/l/styx">
   </a>
 </p>
 
 ## Table of Contents
 
 - [Features](#features)
-- [Oban Pro](#-oban-pro)
 - [Engines](#engines)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Quick Getting Started](#quick-getting-started)
 - [Learning](#learning)
-- [Community](#community)
+- [Provenance](#provenance)
 - [Contributing](#contributing)
-
----
-
-> [!NOTE]
->
-> This README is for the unreleased main branch, please reference the [official documentation on
-> hexdocs][hexdoc] for the latest stable release.
-
-[hexdoc]: https://oban.hexdocs.pm/Oban.html
 
 ---
 
@@ -56,13 +40,13 @@
 
 ## Features
 
-Oban's primary goals are **reliability**, **consistency** and **observability**.
+Styx's primary goals are **reliability**, **consistency** and **observability**.
 
-Oban is a powerful and flexible library that can handle a wide range of background job use cases,
+Styx is a powerful and flexible library that can handle a wide range of background job use cases,
 and it is well-suited for systems of any size. It provides a simple and consistent API for
 scheduling and performing jobs, and it is built to be fault-tolerant and easy to monitor.
 
-Oban is fundamentally different from other background job processing tools because _it retains job
+Styx is fundamentally different from other background job processing tools because _it retains job
 data for historic metrics and inspection_. You can leave your application running indefinitely
 without worrying about jobs being lost or orphaned due to crashes.
 
@@ -127,34 +111,9 @@ without worrying about jobs being lost or orphaned due to crashes.
 
 [tele]: https://github.com/beam-telemetry/telemetry
 
-## 🌟 Oban Pro
-
-An official set of extensions, plugins, and workers that expand what Oban is capable of is
-available as a licensed package. It includes features like:
-
-- **Smart Engine** — Enables global concurrency, global rate limiting, queue partitioning, and
-  auto insert batching for truly distributed job processing.
-
-- **Pro Worker** — Extends workers with execution hooks, structured args, output recording,
-  encrypted args at rest, and chained execution.
-
-- **Workflows** — Compose jobs with arbitrary dependencies for sequential, fan-out, and fan-in
-  execution patterns.
-
-- **Batches** — Process related jobs while tracking overall progress across all nodes and
-  executing optional callbacks.
-
-- **Dynamic Plugins** — Runtime configuration of cron schedules, queues, job priorities, and
-  automatic scaling—ideal for applications that manage jobs dynamically.
-
-- **Decorator** — Build and insert jobs directly from regular functions without defining worker
-  modules.
-
-[Learn more about Oban Pro →](https://oban.pro)
-
 ## Engines
 
-Oban ships with engines for [PostgreSQL][postgres], [MySQL][mysql], and [SQLite3][sqlite3]. Each
+Styx ships with engines for [PostgreSQL][postgres], [MySQL][mysql], and [SQLite3][sqlite3]. Each
 engine supports the same core functionality, though they have differing levels of maturity and
 suitability for production.
 
@@ -164,7 +123,7 @@ suitability for production.
 
 ## Requirements
 
-Oban requires:
+Styx requires:
 
 * Elixir 1.15+
 * Erlang 24+
@@ -172,69 +131,63 @@ Oban requires:
 
 ## Installation
 
-See the [installation guide](https://oban.hexdocs.pm/installation.html) for details on installing
-and configuring Oban in your application.
+See the [installation guide](guides/introduction/installation.md) for details on installing
+and configuring Styx in your application.
 
 ## Quick Getting Started
 
-  1. [Configure queues](https://oban.hexdocs.pm/defining_queues.html) and an Ecto repo for Oban to
-     use:
+  1. Configure queues and an Ecto repo for Styx to use:
 
      ```elixir
      # In config/config.exs
-     config :my_app, Oban,
+     config :my_app, Styx,
        repo: MyApp.Repo,
        queues: [mailers: 20]
      ```
 
-  2. Define a worker to process jobs in the `mailers` queue (see `Oban.Worker`):
+  2. Define a worker to process jobs in the `mailers` queue (see `Styx.Worker`):
 
      ```elixir
      defmodule MyApp.MailerWorker do
-       use Oban.Worker, queue: :mailers
+       use Styx.Worker, queue: :mailers
 
-       @impl Oban.Worker
-       def perform(%Oban.Job{args: %{"email" => email} = _args}) do
+       @impl Styx.Worker
+       def perform(%Styx.Job{args: %{"email" => email} = _args}) do
          _ = Email.deliver(email)
          :ok
        end
      end
      ```
 
-  3. Enqueue a job (see [the documentation](https://oban.hexdocs.pm/Oban.Job.html#enqueueing-jobs)):
+  3. Enqueue a job (see `Styx.Job`):
 
      ```elixir
-     %{email: %{to: "foo@example.com", body: "Hello from Oban!"}}
+     %{email: %{to: "foo@example.com", body: "Hello from Styx!"}}
      |> MyApp.MailerWorker.new()
-     |> Oban.insert()
+     |> Styx.insert()
      ```
 
-  4. The magic happens! Oban executes the job when there is available bandwidth in the
-     `mailer` queue.
+  4. Styx executes the job when there is available bandwidth in the `mailers` queue.
 
 ## Learning
 
-Learn the fundamentals of Oban, all the way through to preparing for production with our LiveBook
-powered [Oban Training](https://github.com/oban-bg/oban_training/) curriculum.
+Refer to the included guides in `guides/` for topics covering defining queues, job lifecycle,
+scheduling, unique jobs, testing, and operational maintenance.
 
 <!-- MDOC -->
 
-## Community
+## Provenance
 
-There are a few places to connect and communicate with other Oban users:
+Styx is derived from [Oban](https://github.com/oban-bg/oban), originally created by Parker Selbert.
+Styx is an independent open-source project and is not affiliated with, endorsed by, or sponsored by
+Sorensen Selbert LLC or the upstream Oban project.
 
-- Ask questions and discuss *#oban* on the [Elixir Forum][forum]
-- [Request an invitation][invite] and join the *#oban* channel on Slack
-- Learn about bug reports and upcoming features in the [issue tracker][issues]
-
-[invite]: https://elixir-slack.community/
-[forum]: https://elixirforum.com/
-[issues]: https://github.com/sorentwo/oban/issues
+Historical Oban releases and changelogs remain documented for provenance in [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 
-To run the Oban test suite you must have PostgreSQL 14+ and MySQL 8+ running. Follow these steps
-to create the database, create the database and run all migrations:
+To run the Styx test suite you must have PostgreSQL 14+ and MySQL 8+ running. Follow these steps
+to create the database and run all migrations:
 
 ```bash
 mix test.setup

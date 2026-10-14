@@ -1,6 +1,6 @@
-defmodule Oban.Test.XQLRepo.Migrations.AddObanJobsTable do
+defmodule Styx.Test.XQLRepo.Migrations.AddObanJobsTable do
   use Ecto.Migration
 
-  defdelegate up, to: Oban.Migration
-  defdelegate down, to: Oban.Migration
+  defdelegate up, to: Styx.Migration
+  defdelegate down, to: Styx.Migration
 end

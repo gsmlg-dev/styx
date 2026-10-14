@@ -1,7 +1,7 @@
-defmodule Oban.Integration.Worker do
+defmodule Styx.Integration.Worker do
   @moduledoc false
 
-  use Oban.Worker, queue: :alpha
+  use Styx.Worker, queue: :alpha
 
   @impl Worker
   def new(args, opts) do
@@ -90,7 +90,7 @@ defmodule Oban.Integration.Worker do
     if ref < recur do
       new_job = new(%{"ref" => ref + 1, "recur" => recur, "bin_pid" => bin_pid})
 
-      Oban.insert!(job.conf.name, new_job)
+      Styx.insert!(job.conf.name, new_job)
     end
 
     :ok

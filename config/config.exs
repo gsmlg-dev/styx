@@ -4,9 +4,9 @@ config :elixir, :time_zone_database, Tz.TimeZoneDatabase
 
 config :logger, level: :warning
 
-config :oban, Oban.Backoff, retry_mult: 1
+config :styx, Styx.Backoff, retry_mult: 1
 
-config :oban, Oban.Repo,
+config :styx, Styx.Repo,
   retry_opts: [
     delay: 10,
     expected_delay: 5,
@@ -14,7 +14,7 @@ config :oban, Oban.Repo,
     retry: 2
   ]
 
-config :oban, Oban.Test.Repo,
+config :styx, Styx.Test.Repo,
   migration_lock: false,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2,
@@ -23,13 +23,13 @@ config :oban, Oban.Test.Repo,
   stacktrace: true,
   url: System.get_env("POSTGRES_URL") || "postgres://localhost:5432/oban_test"
 
-config :oban, Oban.Test.LiteRepo,
+config :styx, Styx.Test.LiteRepo,
   database: "priv/oban.db",
   priv: "test/support/sqlite",
   stacktrace: true,
   temp_store: :memory
 
-config :oban, Oban.Test.DolphinRepo,
+config :styx, Styx.Test.DolphinRepo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2,
   priv: "test/support/myxql",
@@ -37,5 +37,5 @@ config :oban, Oban.Test.DolphinRepo,
   stacktrace: true,
   url: System.get_env("MYSQL_URL") || "mysql://root@localhost:3306/oban_test"
 
-config :oban,
-  ecto_repos: [Oban.Test.Repo, Oban.Test.LiteRepo, Oban.Test.DolphinRepo]
+config :styx,
+  ecto_repos: [Styx.Test.Repo, Styx.Test.LiteRepo, Styx.Test.DolphinRepo]

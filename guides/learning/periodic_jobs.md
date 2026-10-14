@@ -4,12 +4,12 @@ Periodic jobs allow you to schedule recurring tasks that execute on a predictabl
 one-time scheduled jobs, periodic jobs repeat automatically without requiring you to insert new
 jobs after each execution.
 
-Oban uses the [Cron](`Oban.Cron`) module to manage these recurring jobs, allowing you to define
+Styx uses the [Cron](`Styx.Cron`) module to manage these recurring jobs, allowing you to define
 schedules using familiar cron syntax.
 
 ## Setting Up Periodic Jobs
 
-Periodic jobs are declared in your Oban configuration as a list of tuples in one of these formats:
+Periodic jobs are declared in your Styx configuration as a list of tuples in one of these formats:
 
 * `{cron_expression, worker_module}`
 * `{cron_expression, worker_module, options}`
@@ -17,7 +17,7 @@ Periodic jobs are declared in your Oban configuration as a list of tuples in one
 Here's an example configuration:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   repo: MyApp.Repo,
   cron: [
     crontab: [
@@ -41,7 +41,7 @@ In this configuration:
 ## How Periodic Jobs Work
 
 The Cron plugin automatically inserts jobs according to the schedule you define. When the time
-comes for a job to run, Oban:
+comes for a job to run, Styx:
 
 1. Creates a new job for the specified worker
 2. Adds any custom arguments you've defined
@@ -92,7 +92,7 @@ each field are as follows:
 
 ### Cron Extensions
 
-Oban supports these common cron aliases for better readability:
+Styx supports these common cron aliases for better readability:
 
 | Expression                 | Translates To                                   |
 | -------------------------- | ----------------------------------------------- |
@@ -106,7 +106,7 @@ Oban supports these common cron aliases for better readability:
 ### The @reboot Expression
 
 The `@reboot` expression is special—it runs once when a node becomes the leader, rather than at a
-specific time. This behavior depends on Oban's leadership system, which can cause unexpected
+specific time. This behavior depends on Styx's leadership system, which can cause unexpected
 delays in development environments.
 
 In development, when you shut down your application the node may not cleanly relinquish
@@ -117,8 +117,8 @@ To avoid this delay in development, you can use the `Global` peer instead of the
 
 ```elixir
 # In config/dev.exs
-config :my_app, Oban,
-  peer: Oban.Peers.Global,
+config :my_app, Styx,
+  peer: Styx.Peers.Global,
   ...
 ```
 
@@ -144,7 +144,7 @@ For more in depth information, see the man documentation for `cron` and `crontab
 
 * **Timezone Considerations**: All schedules are evaluated as UTC unless a different timezone is
   provided, either for the whole crontab or for individual entries with a `:timezone` option. See
-  `Oban.Cron` documentation for information about configuring a timezone to ensure jobs run at the
+  `Styx.Cron` documentation for information about configuring a timezone to ensure jobs run at the
   expected local time.
 
 * **Dual-Purpose Workers**: Workers can be used for both regular one-time jobs _and_ scheduled

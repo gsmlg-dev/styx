@@ -1,5 +1,5 @@
 defmodule BenchHelper do
-  alias Oban.Test.{LiteRepo, Repo}
+  alias Styx.Test.{LiteRepo, Repo}
 
   def start do
     Application.ensure_all_started(:postgrex)

@@ -1,12 +1,12 @@
-defmodule Oban.MixProject do
+defmodule Styx.MixProject do
   use Mix.Project
 
-  @source_url "https://github.com/oban-bg/oban"
+  @source_url "https://github.com/gsmlg-dev/styx"
   @version "2.24.2"
 
   def project do
     [
-      app: :oban,
+      app: :styx,
       version: @version,
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -28,9 +28,9 @@ defmodule Oban.MixProject do
       ],
 
       # Docs
-      name: "Oban",
+      name: "Styx",
       docs: [
-        main: "Oban",
+        main: "Styx",
         api_reference: false,
         logo: "assets/oban-logo.svg",
         assets: %{"assets" => "assets"},
@@ -60,7 +60,7 @@ defmodule Oban.MixProject do
 
   def application do
     [
-      mod: {Oban.Application, []},
+      mod: {Styx.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -135,55 +135,54 @@ defmodule Oban.MixProject do
   defp groups_for_modules do
     [
       Services: [
-        Oban.Cron,
-        Oban.Lifeline,
-        Oban.Pruner,
-        Oban.Queues,
-        Oban.Reindexer
+        Styx.Cron,
+        Styx.Lifeline,
+        Styx.Pruner,
+        Styx.Queues,
+        Styx.Reindexer
       ],
       Engines: [
-        Oban.Engines.Basic,
-        Oban.Engines.Dolphin,
-        Oban.Engines.Inline,
-        Oban.Engines.Lite
+        Styx.Engines.Basic,
+        Styx.Engines.Dolphin,
+        Styx.Engines.Inline,
+        Styx.Engines.Lite
       ],
       Notifiers: [
-        Oban.Notifiers.Postgres,
-        Oban.Notifiers.PG
+        Styx.Notifiers.Postgres,
+        Styx.Notifiers.PG
       ],
       Peers: [
-        Oban.Peers.Database,
-        Oban.Peers.Global
+        Styx.Peers.Database,
+        Styx.Peers.Global
       ],
       Extending: [
-        Oban.Config,
-        Oban.Engine,
-        Oban.Plugin,
-        Oban.Registry,
-        Oban.Repo,
-        Oban.Telemetry
+        Styx.Config,
+        Styx.Engine,
+        Styx.Plugin,
+        Styx.Registry,
+        Styx.Repo,
+        Styx.Telemetry
       ],
       Exceptions: [
-        Oban.CrashError,
-        Oban.PerformError,
-        Oban.TimeoutError
+        Styx.CrashError,
+        Styx.PerformError,
+        Styx.TimeoutError
       ],
       Deprecated: [
-        Oban.Plugins.Cron,
-        Oban.Plugins.Lifeline,
-        Oban.Plugins.Pruner,
-        Oban.Plugins.Reindexer
+        Styx.Plugins.Cron,
+        Styx.Plugins.Lifeline,
+        Styx.Plugins.Pruner,
+        Styx.Plugins.Reindexer
       ]
     ]
   end
 
   defp package do
     [
-      maintainers: ["Parker Selbert"],
+      maintainers: ["Styx Contributors"],
       licenses: ["Apache-2.0"],
-      files: ~w(lib .formatter.exs mix.exs README* CHANGELOG* LICENSE*),
+      files: ~w(lib .formatter.exs mix.exs README* CHANGELOG* LICENSE* NOTICE*),
       links: %{
-        Website: "https://oban.pro",
         Changelog: "#{@source_url}/blob/main/CHANGELOG.md",
         GitHub: @source_url
       }
@@ -223,10 +222,7 @@ defmodule Oban.MixProject do
         "test --raise"
       ],
       release: [
-        "cmd git tag v#{@version}",
-        "cmd git push",
-        "cmd git push --tags",
-        "hex.publish --yes"
+        "cmd echo 'Release disabled for initial Styx push'"
       ],
       "test.reset": ["ecto.drop --quiet", "test.setup"],
       "test.setup": ["ecto.create --quiet", "ecto.migrate --quiet"],

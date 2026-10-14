@@ -1,16 +1,16 @@
 # Testing Queues
 
-Where workers are the primary "unit" of an Oban system, queues are the "integration" point between
+Where workers are the primary "unit" of an Styx system, queues are the "integration" point between
 the database and your application. That means to test queues and the jobs within them, your tests
 will have to interact with the database. To simplify that interaction, reduce boilerplate, and
-make assertions more expressive `Oban.Testing` provides a variety of helpers.
+make assertions more expressive `Styx.Testing` provides a variety of helpers.
 
 ## Asserting Enqueued Jobs
 
 During test runs you don't typically want to execute jobs. Rather, you need to verify that the job
 was enqueued properly. With the recommended test setup queues and plugins are disabled, and jobs
 won't be inserted into the database at all. Instead, they'll be executed immediately within the
-calling process. The `Oban.Testing.assert_enqueued/2` and `Oban.Testing.refute_enqueued/2` helpers
+calling process. The `Styx.Testing.assert_enqueued/2` and `Styx.Testing.refute_enqueued/2` helpers
 simplify running queries to check for those `available` or `scheduled` jobs sitting in the
 database.
 
@@ -86,7 +86,7 @@ end
 
 During integration tests it may be necessary to run jobs because they do work essential for the
 test to complete, i.e. sending an email, processing media, etc. You can execute all available jobs
-in a particular queue by calling `Oban.drain_queue/1,2` directly from your tests.
+in a particular queue by calling `Styx.drain_queue/1,2` directly from your tests.
 
 For example, to process all pending jobs in the "mailer" queue while testing some business logic:
 
@@ -99,11 +99,11 @@ defmodule MyApp.BusinessTest do
   test "we stay in the business of doing business" do
     :ok = Business.schedule_a_meeting(%{email: "monty@brewster.com"})
 
-    assert %{success: 1, failure: 0} = Oban.drain_queue(queue: :mailer)
+    assert %{success: 1, failure: 0} = Styx.drain_queue(queue: :mailer)
 
     # Now, make an assertion about the email delivery
   end
 end
 ```
 
-See `Oban.drain_queue/1,2` for a myriad of options and additional details.
+See `Styx.drain_queue/1,2` for a myriad of options and additional details.

@@ -1,16 +1,16 @@
 defmodule UniqueWorker do
-  use Oban.Worker, unique: [period: :infinity]
+  use Styx.Worker, unique: [period: :infinity]
 
   @impl true
   def perform(_), do: :ok
 end
 
-Oban.start_link(repo: Oban.Test.Repo, queues: [])
+Styx.start_link(repo: Styx.Test.Repo, queues: [])
 
 unique_insert = fn _ ->
   %{id: 1}
   |> UniqueWorker.new()
-  |> Oban.insert()
+  |> Styx.insert()
 end
 
 Benchee.run(
@@ -24,9 +24,9 @@ Benchee.run(
     |> Enum.each(fn ids ->
       ids
       |> Enum.map(&UniqueWorker.new(%{id: &1}))
-      |> Oban.insert_all()
+      |> Styx.insert_all()
     end))
 
-    Oban.Test.Repo.query!("VACUUM ANALYZE oban_jobs", [], log: false)
+    Styx.Test.Repo.query!("VACUUM ANALYZE oban_jobs", [], log: false)
   end
 )

@@ -24,7 +24,7 @@ Within `config.exs` our application is configured to run three queues:
 `default`, `media` and `events`:
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   repo: MyApp.Repo,
   queues: [default: 15, media: 10, events: 25]
 ```
@@ -43,7 +43,7 @@ defmodule MyApp.Application do
     children = [
       MyApp.Repo,
       MyApp.Endpoint,
-      {Oban, oban_opts()}
+      {Styx, oban_opts()}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
@@ -53,7 +53,7 @@ defmodule MyApp.Application do
     env_queues = System.get_env("OBAN_QUEUES")
 
     :my_app
-    |> Application.get_env(Oban)
+    |> Application.get_env(Styx)
     |> Keyword.update(:queues, [], &queues(env_queues, &1))
   end
 
@@ -119,6 +119,6 @@ code we use in production. In the future, if other workers start to utilize too
 much CPU or RAM we can shift them to the worker node **without any code
 changes**.
 
-_This guide was [prompted by an inquiry][oi82] on the Oban issue tracker._
+_This guide was [prompted by an inquiry][oi82] on the Styx issue tracker._
 
 [oi82]: https://github.com/oban-bg/oban/issues/82

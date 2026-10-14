@@ -1,13 +1,13 @@
 # Testing Workers
 
-Worker modules are the primary "unit" of an Oban system. You can (and should)
+Worker modules are the primary "unit" of an Styx system. You can (and should)
 test a worker's callback functions locally, in-process, without touching the
 database.
 
-Most worker callback functions take a single argument: an `Oban.Job` struct. A
+Most worker callback functions take a single argument: an `Styx.Job` struct. A
 job encapsulates arguments, metadata, and other options. Creating jobs, and
 verifying that they're built correctly, requires some boilerplate...that's where
-`Oban.Testing.perform_job/3` comes in!
+`Styx.Testing.perform_job/3` comes in!
 
 ## Testing Perform
 
@@ -36,12 +36,12 @@ end
 ```
 
 Running the test at this point will raise an error that explains the module
-doesn't implement the `Oban.Worker` behaviour.
+doesn't implement the `Styx.Worker` behaviour.
 
 ```text
 1) test activating a new account (MyApp.ActivationWorkerTest)
 
-   Expected worker to be a module that implements the Oban.Worker behaviour, got:
+   Expected worker to be a module that implements the Styx.Worker behaviour, got:
 
    MyApp.ActivationWorker
 
@@ -53,7 +53,7 @@ value:
 
 ```elixir
 defmodule MyApp.ActivationWorker do
-  use Oban.Worker
+  use Styx.Worker
 
   @impl Worker
   def perform(%Job{args: %{"id" => user_id}}) do
@@ -65,7 +65,7 @@ end
 The `perform_job/3` helper's errors will guide you through implementing a
 complete worker with the following assertions:
 
-* That the worker implements the `Oban.Worker` behaviour
+* That the worker implements the `Styx.Worker` behaviour
 * That `args` is encodable/decodable to JSON and always has string keys
 * That the options provided build a valid job
 * That the return value is expected, e.g. `:ok`, `{:ok, value}`, `{:error, value}` etc.
@@ -85,9 +85,9 @@ job's `attempt`:
 
 ```elixir
 test "calculating custom backoff as a multiple of job attempts" do
-  assert 2 == MyWorker.backoff(%Oban.Job{attempt: 1})
-  assert 4 == MyWorker.backoff(%Oban.Job{attempt: 2})
-  assert 6 == MyWorker.backoff(%Oban.Job{attempt: 3})
+  assert 2 == MyWorker.backoff(%Styx.Job{attempt: 1})
+  assert 4 == MyWorker.backoff(%Styx.Job{attempt: 2})
+  assert 6 == MyWorker.backoff(%Styx.Job{attempt: 3})
 end
 ```
 
@@ -96,11 +96,11 @@ some number of milliseconds:
 
 ```elixir
 test "allowing a multiple of the attempt as job timeout" do
-  assert 1000 == MyWorker.timeout(%Oban.Job{attempt: 1})
-  assert 2000 == MyWorker.timeout(%Oban.Job{attempt: 2})
+  assert 1000 == MyWorker.timeout(%Styx.Job{attempt: 1})
+  assert 2000 == MyWorker.timeout(%Styx.Job{attempt: 2})
 end
 ```
 
 Jobs are Ecto schemas, and therefore structs. There isn't anything magical about
-them! Explore the `Oban.Job` documentation to see all of the types and fields
+them! Explore the `Styx.Job` documentation to see all of the types and fields
 available for testing.

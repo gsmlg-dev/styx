@@ -1,12 +1,12 @@
 # Operational Maintenance
 
-This guide walks you through *maintaining* a production Oban setup from an operational
+This guide walks you through *maintaining* a production Styx setup from an operational
 perspective. Proper maintenance ensures your job processing system remains efficient, responsive,
 and reliable over time.
 
 ## Understanding Job Persistence
 
-Oban stores all jobs in the database, which offers several advantages:
+Styx stores all jobs in the database, which offers several advantages:
 
 - **Durability**: Jobs survive application restarts and crashes
 - **Visibility**: Administrators can inspect job status and history
@@ -21,13 +21,13 @@ indefinitely.
 Job stats and queue introspection are built on *keeping job rows in the database* after they have
 completed. This allows administrators to review completed jobs and build informative aggregates,
 at the expense of storage and an unbounded table size. To prevent the `oban_jobs` table from
-growing indefinitely, Oban actively prunes `completed`, `cancelled`, and `discarded` jobs.
+growing indefinitely, Styx actively prunes `completed`, `cancelled`, and `discarded` jobs.
 
-By default, the [Pruner](`Oban.Pruner`) retains jobs for 60 seconds. You can configure a longer
+By default, the [Pruner](`Styx.Pruner`) retains jobs for 60 seconds. You can configure a longer
 retention period by providing a `:max_age` in seconds to the pruner plugin.
 
 ```elixir
-config :my_app, Oban,
+config :my_app, Styx,
   pruner: [max_age: {1, :day}],
   # ...
 ```
@@ -43,13 +43,13 @@ This happens in the background without impacting job execution.
 
 ## Indexes
 
-Oban relies on database indexes to efficiently query and process jobs. As the `oban_jobs` table
+Styx relies on database indexes to efficiently query and process jobs. As the `oban_jobs` table
 experiences high write activity, index bloat and fragmentation can occur over time, potentially
 degrading performance.
 
-#### Understanding Oban Indexes
+#### Understanding Styx Indexes
 
-Oban creates several important indexes on the `oban_jobs` table:
+Styx creates several important indexes on the `oban_jobs` table:
 
 - Indexes for efficiently fetching jobs by state and priority
 - Indexes for scheduling future jobs
@@ -62,15 +62,15 @@ With heavy usage, these indexes can become less efficient due to:
 
 #### Using the Reindexer Plugin
 
-Oban provides a dedicated plugin for maintaining index health: `Oban.Reindexer`. This
+Styx provides a dedicated plugin for maintaining index health: `Styx.Reindexer`. This
 plugin periodically rebuilds indexes concurrently to ensure optimal performance.
 
-To enable automatic index maintenance, add the Reindexer to your Oban configuration:
+To enable automatic index maintenance, add the Reindexer to your Styx configuration:
 
 ```elixir
-config :my_app, Oban,
-  pruner: Oban.Pruner,
-  reindexer: Oban.Reindexer,
+config :my_app, Styx,
+  pruner: Styx.Pruner,
+  reindexer: Styx.Reindexer,
   # ...
 ```
 

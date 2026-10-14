@@ -2,23 +2,23 @@
 
 ## Change Notifiers
 
-Oban uses PubSub notifications for communication between nodes, like job inserts, pausing queues,
-resuming queues, and metrics for Web. The default notifier is `Oban.Notifiers.Postgres`, which
+Styx uses PubSub notifications for communication between nodes, like job inserts, pausing queues,
+resuming queues, and metrics for Web. The default notifier is `Styx.Notifiers.Postgres`, which
 sends all messages through the database. This provides transactional consistency, but Postgres'
 notifications adds up at scale because each one requires a separate query.
 
-If you're clustered, consider switching to an alternative notifier like `Oban.Notifiers.PG`. That
+If you're clustered, consider switching to an alternative notifier like `Styx.Notifiers.PG`. That
 keeps notifications out of the db, reduces total queries, and allows larger messages, with the
 tradeoff that notifications from within a database transaction may be sent even if the transaction
 is rolled back. As long as you have a functional Distributed Erlang cluster, switching is a
-single line change to your Oban config.
+single line change to your Styx config.
 
 ```diff
- config :my_app, Oban,
-+  notifier: Oban.Notifiers.PG,
+ config :my_app, Styx,
++  notifier: Styx.Notifiers.PG,
 ```
 
-If you're not clustered, consider using [`Oban.Notifiers.Phoenix`][onp] to send notifications
+If you're not clustered, consider using [`Styx.Notifiers.Phoenix`][onp] to send notifications
 through an alternative service like Redis.
 
 [onp]: https://github.com/sorentwo/oban_notifiers_phoenix
@@ -32,10 +32,10 @@ notifications for active queues.
 Evaluate if you need sub-second job dispatch. Without it, jobs may wait up to 1s before running,
 but that’s not a concern for busy queues since they’re constantly fetching and dispatching.
 
-Disable triggers in your Oban configuration:
+Disable triggers in your Styx configuration:
 
 ```diff
- config :my_app, Oban,
+ config :my_app, Styx,
 +  insert_trigger: false,
 ```
 
@@ -87,7 +87,7 @@ If you're still committed to setting uniquness for your jobs, consider tweaking 
 configuration as follows:
 
 ```diff
-use Oban.Worker, unique: [
+use Styx.Worker, unique: [
 -   period: {1, :hour},
 +   period: :infinity,
 +   keys: [:some_key]
@@ -104,18 +104,18 @@ use Oban.Worker, unique: [
 ## Apply Reindexing
 
 To stop oban_jobs indexes from taking up so much space on disk, use the
-`Oban.Reindexer` plugin to rebuild indexes periodically. The Postgres transactional
+`Styx.Reindexer` plugin to rebuild indexes periodically. The Postgres transactional
 model applies to indexes as well as tables. That leaves bloat from inserting, updating, and
 deleting jobs that auto-vacuuming won’t always fix.
 
 The reindexer rebuilds key indexes on a fixed schedule, concurrently. Concurrent rebuilds are low
 impact, they don’t lock the table, and they free up space while optimizing indexes.
 
-The `Oban.Reindexer` plugin is part of OSS Oban. It runs every day at midnight by
+The `Styx.Reindexer` plugin is part of OSS Styx. It runs every day at midnight by
 default, but it accepts a cron-style schedule and you can tweak it to run less frequently.
 
 ```diff
-config :my_app, Oban,
+config :my_app, Styx,
 +  reindexer: [schedule: "@weekly"],
    …
 ```
@@ -157,18 +157,18 @@ as necessary for uniqueness and historic introspection.
 For example, to limit historic jobs to 1 day:
 
 ```diff
- config :my_app, Oban,
+ config :my_app, Styx,
 +  pruner: [max_age: {1, :day}],
    …
 ```
 
 ## Consider Pooling
 
-Oban uses connections from your application Repo’s pool to talk to the database. When that pool
-is busy, it can starve Oban of connections and you’ll see timeout errors. Likewise, if Oban is
+Styx uses connections from your application Repo’s pool to talk to the database. When that pool
+is busy, it can starve Styx of connections and you’ll see timeout errors. Likewise, if Styx is
 extremely busy (as it should be), it can starve your application of connections. A good solution
-for this is to set up another pool that’s exclusively for Oban’s internal use. The dedicated
-pool isolates Oban’s queries from the rest of the application.
+for this is to set up another pool that’s exclusively for Styx’s internal use. The dedicated
+pool isolates Styx’s queries from the rest of the application.
 
 Start by defining a new `ObanRepo`:
 
@@ -202,7 +202,7 @@ Then switch the configured `repo`, and use the repo's `dynamic_repo` option to e
 repo is used within a transaction:
 
 ```diff
- config :my_app, Oban,
+ config :my_app, Styx,
 -  repo: MyApp.Repo,
 +  repo: {MyApp.ObanRepo, dynamic_repo: {MyApp.Repo, :oban_repo, []}},
    ...
@@ -223,7 +223,7 @@ config :my_app, Repo,
 +  pool_size: 50,
    …
 
- config :my_app, Oban,
+ config :my_app, Styx,
    queues: [
 -    events: 200,
 +    events: 50,

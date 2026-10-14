@@ -1,4 +1,4 @@
-defmodule Oban.TelemetryHandler do
+defmodule Styx.TelemetryHandler do
   @moduledoc """
   This utility module is used during job tests to capture telemetry events
   and send them back to the test processes that registered the handler.
@@ -19,45 +19,45 @@ defmodule Oban.TelemetryHandler do
   def attach_events(opts \\ []) do
     span_tail = Keyword.get(opts, :span_tail, @span_tail)
     span_type = Keyword.get(opts, :span_type, @span_type)
-    oban_name = Keyword.get(opts, :oban_name, :all)
+    styx_name = Keyword.get(opts, :styx_name, :all)
 
     name = name()
 
     events =
       for type <- span_type, tail <- span_tail do
-        List.flatten([:oban, type, tail])
+        List.flatten([:styx, type, tail])
       end
 
-    events = [[:oban, :supervisor, :init] | events]
+    events = [[:styx, :supervisor, :init] | events]
 
     on_exit(fn -> :telemetry.detach(name) end)
 
-    :telemetry.attach_many(name, events, &handle/4, {self(), oban_name})
+    :telemetry.attach_many(name, events, &handle/4, {self(), styx_name})
   end
 
-  def handle(event, measure, meta, {pid, oban_name}) do
-    if oban_name == :all or match?(%{conf: %{name: ^oban_name}}, meta) do
+  def handle(event, measure, meta, {pid, styx_name}) do
+    if styx_name == :all or match?(%{conf: %{name: ^styx_name}}, meta) do
       dispatch(event, measure, meta, pid)
     end
   end
 
-  defp dispatch([:oban, :job, :start], %{system_time: start_time}, meta, pid) do
+  defp dispatch([:styx, :job, :start], %{system_time: start_time}, meta, pid) do
     send(pid, {:event, :start, start_time, meta})
   end
 
-  defp dispatch([:oban, :job, event], measure, meta, pid) do
+  defp dispatch([:styx, :job, event], measure, meta, pid) do
     send(pid, {:event, event, measure, meta})
   end
 
-  defp dispatch([:oban, :engine | event], measure, meta, pid) do
+  defp dispatch([:styx, :engine | event], measure, meta, pid) do
     send(pid, {:event, event, measure, meta})
   end
 
-  defp dispatch([:oban, :plugin, event], measure, meta, pid) do
+  defp dispatch([:styx, :plugin, event], measure, meta, pid) do
     send(pid, {:event, event, measure, meta})
   end
 
-  defp dispatch([:oban, :peer | event], measure, meta, pid) do
+  defp dispatch([:styx, :peer | event], measure, meta, pid) do
     send(pid, {:event, event, measure, meta})
   end
 

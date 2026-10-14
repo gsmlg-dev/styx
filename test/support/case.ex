@@ -1,20 +1,20 @@
-defmodule Oban.Case do
+defmodule Styx.Case do
   @moduledoc false
 
   use ExUnit.CaseTemplate
 
   alias Ecto.Adapters.SQL.Sandbox
-  alias Oban.Integration.Worker
-  alias Oban.Job
-  alias Oban.Test.{DolphinRepo, LiteRepo, Repo, UnboxedRepo}
+  alias Styx.Integration.Worker
+  alias Styx.Job
+  alias Styx.Test.{DolphinRepo, LiteRepo, Repo, UnboxedRepo}
 
   using do
     quote do
-      import Oban.Case
+      import Styx.Case
 
-      alias Oban.Integration.Worker
-      alias Oban.{Config, Job}
-      alias Oban.Test.{DolphinRepo, LiteRepo, Repo, UnboxedRepo}
+      alias Styx.Integration.Worker
+      alias Styx.{Config, Job}
+      alias Styx.Test.{DolphinRepo, LiteRepo, Repo, UnboxedRepo}
     end
   end
 
@@ -22,8 +22,8 @@ defmodule Oban.Case do
     cond do
       context[:unboxed] ->
         on_exit(fn ->
-          UnboxedRepo.delete_all(Oban.Job)
-          UnboxedRepo.delete_all(Oban.Job, prefix: "private")
+          UnboxedRepo.delete_all(Styx.Job)
+          UnboxedRepo.delete_all(Styx.Job, prefix: "private")
         end)
 
       context[:lite] ->
@@ -43,12 +43,12 @@ defmodule Oban.Case do
     :ok
   end
 
-  def start_supervised_oban!(opts) do
+  def start_supervised_styx!(opts) do
     opts =
       opts
       |> Keyword.put_new(:name, make_ref())
-      |> Keyword.put_new(:notifier, Oban.Notifiers.Isolated)
-      |> Keyword.put_new(:peer, Oban.Peers.Isolated)
+      |> Keyword.put_new(:notifier, Styx.Notifiers.Isolated)
+      |> Keyword.put_new(:peer, Styx.Peers.Isolated)
       |> Keyword.put_new(:repo, Repo)
       |> Keyword.put_new(:shutdown_grace_period, 250)
       |> Keyword.put_new(:stager, false)
@@ -57,11 +57,13 @@ defmodule Oban.Case do
     repo = Keyword.fetch!(opts, :repo)
 
     attach_auto_allow(repo, name)
-    start_supervised!({Oban, opts})
+    start_supervised!({Styx, opts})
     ensure_started(name, opts)
 
     name
   end
+
+  defdelegate start_supervised_oban!(opts), to: __MODULE__, as: :start_supervised_styx!
 
   def with_backoff(opts \\ [], fun) do
     total = Keyword.get(opts, :total, 100)
@@ -102,7 +104,7 @@ defmodule Oban.Case do
   def insert!(oban, args, opts) do
     changeset = build(args, opts)
 
-    Oban.insert!(oban, changeset)
+    Styx.insert!(oban, changeset)
   end
 
   # Pruning test helpers
@@ -131,7 +133,7 @@ defmodule Oban.Case do
   # Attaching
 
   defp attach_auto_allow(repo, name) when repo in [Repo, DolphinRepo] do
-    telemetry_name = "oban-auto-allow-#{inspect(name)}"
+    telemetry_name = "styx-auto-allow-#{inspect(name)}"
 
     auto_allow = fn _event, _measure, %{conf: conf}, {name, repo, test_pid} ->
       if conf.name == name, do: Sandbox.allow(repo, test_pid, self())
@@ -140,9 +142,9 @@ defmodule Oban.Case do
     :telemetry.attach_many(
       telemetry_name,
       [
-        [:oban, :engine, :init, :start],
-        [:oban, :peer, :election, :start],
-        [:oban, :plugin, :init]
+        [:styx, :engine, :init, :start],
+        [:styx, :peer, :election, :start],
+        [:styx, :plugin, :init]
       ],
       auto_allow,
       {name, repo, self()}
@@ -157,6 +159,6 @@ defmodule Oban.Case do
     opts
     |> Keyword.get(:queues, [])
     |> Keyword.keys()
-    |> Enum.each(&Oban.check_queue(name, queue: &1))
+    |> Enum.each(&Styx.check_queue(name, queue: &1))
   end
 end

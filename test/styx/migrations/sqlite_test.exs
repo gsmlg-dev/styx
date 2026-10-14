@@ -1,0 +1,64 @@
+defmodule Styx.Migrations.SQLiteTest do
+  use Styx.Case, async: true
+
+  @moduletag :lite
+
+  defmodule MigrationRepo do
+    @moduledoc false
+
+    use Ecto.Repo, otp_app: :styx, adapter: Ecto.Adapters.SQLite3
+
+    alias Styx.Test.LiteRepo
+
+    def init(_, _) do
+      {:ok, Keyword.put(LiteRepo.config(), :database, "priv/migration.db")}
+    end
+  end
+
+  defmodule Migration do
+    use Ecto.Migration
+
+    def up do
+      Styx.Migration.up()
+    end
+
+    def down do
+      Styx.Migration.down()
+    end
+  end
+
+  test "verifying that any migrations have ran" do
+    start_supervised!(MigrationRepo)
+
+    assert_raise RuntimeError, ~r/migrations have not been run/, fn ->
+      start_supervised_oban!(repo: MigrationRepo, testing: :manual)
+    end
+  end
+
+  test "migrating a sqlite database" do
+    start_supervised!(MigrationRepo)
+
+    MigrationRepo.__adapter__().storage_up(MigrationRepo.config())
+
+    assert :ok = Ecto.Migrator.up(MigrationRepo, 1, Migration)
+    assert table_exists?()
+
+    assert :ok = Ecto.Migrator.down(MigrationRepo, 1, Migration)
+    refute table_exists?()
+  end
+
+  defp table_exists? do
+    query = """
+    SELECT EXISTS (
+      SELECT 1
+      FROM sqlite_master
+      WHERE type='table'
+        AND name='oban_jobs'
+    )
+    """
+
+    {:ok, %{rows: [[exists]]}} = MigrationRepo.query(query)
+
+    exists != 0
+  end
+end
