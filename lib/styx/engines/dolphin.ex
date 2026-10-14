@@ -91,7 +91,7 @@ defmodule Styx.Engines.Dolphin do
 
     query = """
     SELECT *
-    FROM oban_jobs
+    FROM styx_jobs
     WHERE state = 'available' AND queue = '#{meta.queue}' AND attempt < max_attempts
     ORDER BY priority, scheduled_at, id
     LIMIT #{demand}
@@ -119,7 +119,7 @@ defmodule Styx.Engines.Dolphin do
           # Ecto can't express this, so it's literal SQL.
           update = """
           UPDATE JSON_TABLE(?, '$[*]' COLUMNS (id BIGINT PATH '$')) AS fetched
-          STRAIGHT_JOIN oban_jobs FORCE INDEX (PRIMARY) ON fetched.id = oban_jobs.id
+          STRAIGHT_JOIN styx_jobs FORCE INDEX (PRIMARY) ON fetched.id = styx_jobs.id
           SET state = 'executing', attempted_at = ?, attempted_by = ?, attempt = attempt + 1
           """
 

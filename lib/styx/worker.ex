@@ -328,7 +328,7 @@ defmodule Styx.Worker do
   The default priority is defined in the `jobs` table. The least intrusive way to change
   it for all jobs is to change the column default through a migration:
 
-      alter table("oban_jobs") do
+      alter table("styx_jobs") do
         modify :priority, :integer, default: 1, from: {:integer, default: 0}
       end
 

@@ -92,7 +92,7 @@ defmodule Styx.Peers.DatabaseTest do
 
   # Slightly invasive, but much easier than coordinating multiple supervised instances.
   defp take_over(conf, expires_at: expires_at) do
-    "oban_peers"
+    "styx_peers"
     |> where(name: ^inspect(conf.name))
     |> Repo.update_all(set: [node: "web.B", expires_at: expires_at])
   end

@@ -47,7 +47,7 @@ Switching to `Styx.Notifiers.PG` restores immediate handover for clustered appli
 
 Styx provides two peer implementations:
 
-* `Styx.Peers.Database` — Uses the `oban_peers` table for leadership coordination. Works in any
+* `Styx.Peers.Database` — Uses the `styx_peers` table for leadership coordination. Works in any
   environment, with or without clustering. This is the default and recommended for production.
 
 * `Styx.Peers.Global` — Uses Erlang's `:global` module for leadership. Requires Distributed

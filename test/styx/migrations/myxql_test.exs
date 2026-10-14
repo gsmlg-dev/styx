@@ -56,12 +56,12 @@ defmodule Styx.Migrations.MyXQLTest do
     start_supervised!(MigrationRepo)
 
     assert :ok = Ecto.Migrator.up(MigrationRepo, 1, Migration)
-    assert table_exists?("oban_jobs")
-    assert table_exists?("oban_peers")
+    assert table_exists?("styx_jobs")
+    assert table_exists?("styx_peers")
 
     assert :ok = Ecto.Migrator.down(MigrationRepo, 1, Migration)
-    refute table_exists?("oban_jobs")
-    refute table_exists?("oban_peers")
+    refute table_exists?("styx_jobs")
+    refute table_exists?("styx_peers")
   after
     storage_down()
   end

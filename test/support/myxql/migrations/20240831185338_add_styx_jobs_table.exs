@@ -1,4 +1,4 @@
-defmodule Styx.Test.Repo.SQLite.Migrations.AddObanJobsTable do
+defmodule Styx.Test.XQLRepo.Migrations.AddStyxJobsTable do
   use Ecto.Migration
 
   defdelegate up, to: Styx.Migration

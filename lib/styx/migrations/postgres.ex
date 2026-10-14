@@ -6,7 +6,7 @@ defmodule Styx.Migrations.Postgres do
   use Ecto.Migration
 
   @initial_version 1
-  @current_version 14
+  @current_version 1
   @default_prefix "public"
 
   @doc false
@@ -53,7 +53,7 @@ defmodule Styx.Migrations.Postgres do
     SELECT pg_catalog.obj_description(pg_class.oid, 'pg_class')
     FROM pg_class
     LEFT JOIN pg_namespace ON pg_namespace.oid = pg_class.relnamespace
-    WHERE pg_class.relname = 'oban_jobs'
+    WHERE pg_class.relname = 'styx_jobs'
     AND pg_namespace.nspname = '#{escaped_prefix}'
     """
 
@@ -82,7 +82,7 @@ defmodule Styx.Migrations.Postgres do
   defp record_version(_opts, 0), do: :ok
 
   defp record_version(%{prefix: prefix}, version) do
-    execute "COMMENT ON TABLE #{inspect(prefix)}.oban_jobs IS '#{version}'"
+    execute "COMMENT ON TABLE #{inspect(prefix)}.styx_jobs IS '#{version}'"
   end
 
   defp with_defaults(opts, version) do

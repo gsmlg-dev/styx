@@ -41,7 +41,7 @@ Styx.Telemetry.attach_default_logger(encode: false, level: :debug)
 ## Pruning Jobs
 
 Job introspection and uniqueness relies on keeping job rows in the database after they have
-executed. To prevent the `oban_jobs` table from growing indefinitely, the `Styx.Pruner`
+executed. To prevent the `styx_jobs` table from growing indefinitely, the `Styx.Pruner`
 plugin provides out-of-band deletion of `completed`, `cancelled` and `discarded` jobs.
 
 Retaining jobs for 1 day is a conservative starting point. Depending on throughput and how long

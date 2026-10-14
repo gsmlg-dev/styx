@@ -23,7 +23,7 @@ Let's look at a tiny example plugin to get a feel for how options are passed in
 and how they run. Our plugin will periodically generate a table of counts for
 each `queue` / `state` combination and then print it out. It isn't an amazingly
 useful plugin, but it demonstrates how to handle options, work with the
-`Styx.Config` struct, and periodically interact with the `oban_jobs` table.
+`Styx.Config` struct, and periodically interact with the `styx_jobs` table.
 
 ```elixir
 defmodule MyApp.Plugins.Breakdown do
@@ -85,7 +85,7 @@ registration, it passes the options through to `init/1`. The `init` function
 converts the keyword list of options into a map for easier access and then
 begins a polling loop.
 
-Each iteration of the loop will query the `oban_jobs` table and print out a list
+Each iteration of the loop will query the `styx_jobs` table and print out a list
 of `{queue, state, count}` tuples like this:
 
 ```

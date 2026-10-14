@@ -1,7 +1,7 @@
 # Migrating from Other Languages
 
 Migrating background jobs to Elixir is easy with Styx because everything lives in your PostgreSQL
-database. Styx relies on a structured `oban_jobs` table as its job queue, and purposefully uses
+database. Styx relies on a structured `styx_jobs` table as its job queue, and purposefully uses
 JSON as a portable data structures for serialization. That makes enqueueing jobs into Styx simple for
 any language with a PostgreSQL adapter—no Styx client necessary.
 
@@ -62,7 +62,7 @@ Styx::Job.insert_all([
 
 ## Safety Guaranteed
 
-Most columns in `oban_jobs` have sensible defaults, so only the `worker` and `args` are typically
+Most columns in `styx_jobs` have sensible defaults, so only the `worker` and `args` are typically
 required. For integrity, all required columns are marked as `NON NULL`, and several have `CHECK`
 constraints as well for extra enforcement.
 

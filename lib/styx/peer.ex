@@ -20,7 +20,7 @@ defmodule Styx.Peer do
 
   There are two built-in peering modules:
 
-  * `Styx.Peers.Database` — uses table-based leadership through the `oban_peers` table and works
+  * `Styx.Peers.Database` — uses table-based leadership through the `styx_peers` table and works
     in any environment, with or without clustering. Only one node (per instance name) will have a
     row in the peers table, that node is the leader. This is the default.
 

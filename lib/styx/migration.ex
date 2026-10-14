@@ -43,19 +43,19 @@ defmodule Styx.Migration do
   additional migrations. To do this, generate a new migration:
 
   ```bash
-  mix ecto.gen.migration upgrade_styx_to_v14
+  mix ecto.gen.migration upgrade_styx_to_v2
   ```
 
   Open the generated migration in your editor and call the `up` and `down` functions on
   `Styx.Migration`, passing a version number:
 
   ```elixir
-  defmodule MyApp.Repo.Migrations.UpgradeStyxToV14 do
+  defmodule MyApp.Repo.Migrations.UpgradeStyxToV2 do
     use Ecto.Migration
 
-    def up, do: Styx.Migrations.up(version: 14)
+    def up, do: Styx.Migrations.up(version: 2)
 
-    def down, do: Styx.Migrations.down(version: 13)
+    def down, do: Styx.Migrations.down(version: 1)
   end
   ```
 
@@ -68,7 +68,7 @@ defmodule Styx.Migration do
   To use a prefix you first have to specify it within your migration:
 
   ```elixir
-  defmodule MyApp.Repo.Migrations.AddPrefixedObanJobsTable do
+  defmodule MyApp.Repo.Migrations.AddPrefixedStyxJobsTable do
     use Ecto.Migration
 
     def up, do: Styx.Migrations.up(prefix: "private")
@@ -92,7 +92,7 @@ defmodule Styx.Migration do
   of the "private" schema:
 
   ```elixir
-  defmodule MyApp.Repo.Migrations.AddPrefixedObanJobsTable do
+  defmodule MyApp.Repo.Migrations.AddPrefixedStyxJobsTable do
     use Ecto.Migration
 
     def up, do: Styx.Migrations.up(prefix: "private", create_schema: false)
@@ -209,7 +209,7 @@ defmodule Styx.Migration do
     cond do
       version == 0 ->
         raise RuntimeError, """
-        Styx migrations have not been run. The oban_jobs table does not exist.
+        Styx migrations have not been run. The styx_jobs table does not exist.
 
         Run migrations before starting Styx:
 

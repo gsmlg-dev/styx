@@ -3,12 +3,12 @@ defmodule Styx.Peers.Database do
   A peer that coordinates centrally through a database table.
 
   Database peers don't require clustering through distributed Erlang or any other
-  interconnectivity between nodes. Leadership is coordinated through the `oban_peers` table in
-  your database. With a standard Styx config the `oban_peers` table will only have one row, and
+  interconnectivity between nodes. Leadership is coordinated through the `styx_peers` table in
+  your database. With a standard Styx config the `styx_peers` table will only have one row, and
   that node is the leader.
 
   Applications that run multiple Styx instances will have one row per instance. For example, an
-  umbrella application that runs `Styx.A` and `Styx.B` will have two rows in `oban_peers`.
+  umbrella application that runs `Styx.A` and `Styx.B` will have two rows in `styx_peers`.
 
   ## Usage
 
@@ -156,7 +156,7 @@ defmodule Styx.Peers.Database do
 
   defp delete_expired_peers(%State{conf: conf} = state) do
     query =
-      "oban_peers"
+      "styx_peers"
       |> where([p], p.name == ^inspect(conf.name))
       |> where([p], p.expires_at < ^DateTime.utc_now())
 
@@ -166,14 +166,14 @@ defmodule Styx.Peers.Database do
   end
 
   defp delete_self(%State{conf: conf}) do
-    query = where("oban_peers", name: ^inspect(conf.name), node: ^conf.node)
+    query = where("styx_peers", name: ^inspect(conf.name), node: ^conf.node)
 
     Repo.delete_all(conf, query)
   end
 
   defp query_leader(conf) do
     query =
-      "oban_peers"
+      "styx_peers"
       |> where([p], p.name == ^inspect(conf.name))
       |> select([p], p.node)
 
@@ -203,13 +203,13 @@ defmodule Styx.Peers.Database do
 
   defp regular_upsert(%{node: node, expires_at: expires_at} = peer_data, state) do
     on_conflict =
-      "oban_peers"
+      "styx_peers"
       |> where([p], p.node == ^node)
       |> update([p], set: [expires_at: ^expires_at])
 
     repo_opts = [conflict_target: :name, on_conflict: on_conflict]
 
-    case Repo.insert_all(state.conf, "oban_peers", [peer_data], repo_opts) do
+    case Repo.insert_all(state.conf, "styx_peers", [peer_data], repo_opts) do
       {0, nil} -> false
       {_, nil} -> true
     end
@@ -225,7 +225,7 @@ defmodule Styx.Peers.Database do
 
     # MySQL always returns the number of entries attempted, even when nothing was added. We have
     # to check the leader after update.
-    Repo.insert_all(state.conf, "oban_peers", [peer_data], repo_opts)
+    Repo.insert_all(state.conf, "styx_peers", [peer_data], repo_opts)
 
     query_leader(state.conf) == peer_data.node
   end

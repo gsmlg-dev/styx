@@ -420,7 +420,7 @@ defmodule Styx do
   * `:peer` — used to specify which peer module to use for cluster leadership.
 
     There are two built-in peers: `Styx.Peers.Database`, which uses table-based leadership through
-    the `oban_peers` table; and `Styx.Peers.Global`, which uses global locks through distributed Erlang.
+    the `styx_peers` table; and `Styx.Peers.Global`, which uses global locks through distributed Erlang.
 
     Leadership can be disabled by setting `peer: false`, but note that centralized plugins like
     `Cron` won't run without leadership.
@@ -436,7 +436,7 @@ defmodule Styx do
     `:plugins` raises during validation, while `false` disables plugins from both.
 
   * `:prefix` — the query prefix, or schema, to use for inserting and executing jobs. An
-    `oban_jobs` table must exist within the prefix. See the "Prefix Support" section in the module
+    `styx_jobs` table must exist within the prefix. See the "Prefix Support" section in the module
     documentation for more details.
 
   * `:queues` — a keyword list where the keys are queue names and the values are the concurrency

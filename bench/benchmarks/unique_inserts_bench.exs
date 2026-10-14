@@ -27,6 +27,6 @@ Benchee.run(
       |> Styx.insert_all()
     end))
 
-    Styx.Test.Repo.query!("VACUUM ANALYZE oban_jobs", [], log: false)
+    Styx.Test.Repo.query!("VACUUM ANALYZE styx_jobs", [], log: false)
   end
 )

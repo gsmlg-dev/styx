@@ -16,7 +16,7 @@ defmodule Styx.ReindexerTest do
       assert {:error, _} = Reindexer.validate(indexes: [:index])
       assert {:error, _} = Reindexer.validate(indexes: ["index", :index])
 
-      assert :ok = Reindexer.validate(indexes: ["oban_jobs_some_index"])
+      assert :ok = Reindexer.validate(indexes: ["styx_jobs_some_index"])
     end
 
     test "validating that :timezone is a known timezone" do
@@ -79,13 +79,13 @@ defmodule Styx.ReindexerTest do
 
     @tag :unboxed
     test "dropping all invalid indexes" do
-      index_name = "oban_jobs_test_invalid_idx"
+      index_name = "styx_jobs_test_invalid_idx"
 
       on_exit(fn ->
         UnboxedRepo.query("DROP INDEX IF EXISTS #{index_name}")
       end)
 
-      UnboxedRepo.query!("CREATE INDEX CONCURRENTLY #{index_name} ON oban_jobs(id)")
+      UnboxedRepo.query!("CREATE INDEX CONCURRENTLY #{index_name} ON styx_jobs(id)")
 
       UnboxedRepo.query!(
         "UPDATE pg_index SET indisvalid = false WHERE indexrelid = 'public.#{index_name}'::regclass"
@@ -106,7 +106,7 @@ defmodule Styx.ReindexerTest do
     end
 
     test "reindexing every index despite individual failures" do
-      indexes = ~w(oban_jobs_missing_index_a oban_jobs_missing_index_b)
+      indexes = ~w(styx_jobs_missing_index_a styx_jobs_missing_index_b)
 
       name = start_supervised_styx!(plugins: [{Reindexer, indexes: indexes}])
 

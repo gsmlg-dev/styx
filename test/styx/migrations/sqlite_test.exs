@@ -53,7 +53,7 @@ defmodule Styx.Migrations.SQLiteTest do
       SELECT 1
       FROM sqlite_master
       WHERE type='table'
-        AND name='oban_jobs'
+        AND name='styx_jobs'
     )
     """
 

@@ -25,8 +25,8 @@ defmodule Styx.Reindexer do
 
   ## Options
 
-    * `:indexes` — a list of indexes to reindex on the `oban_jobs` table. Defaults to only the
-      `oban_jobs_args_index` and `oban_jobs_meta_index`.
+    * `:indexes` — a list of indexes to reindex on the `styx_jobs` table. Defaults to only the
+      `styx_jobs_args_index` and `styx_jobs_meta_index`.
 
     * `:schedule` — a cron expression that controls when to reindex. Defaults to `"@midnight"`.
 
@@ -58,7 +58,7 @@ defmodule Styx.Reindexer do
 
   defstruct [
     :conf,
-    indexes: ~w(oban_jobs_args_index oban_jobs_meta_index),
+    indexes: ~w(styx_jobs_args_index styx_jobs_meta_index),
     schedule: "@midnight",
     timeout: :timer.seconds(15),
     timezone: "Etc/UTC"
@@ -169,7 +169,7 @@ defmodule Styx.Reindexer do
     JOIN pg_class c ON c.oid = i.indexrelid
     WHERE relnamespace = '#{state.conf.prefix}'::regnamespace
       AND NOT indisvalid
-      AND starts_with(relname, 'oban_jobs')
+      AND starts_with(relname, 'styx_jobs')
     """
 
     case Repo.query(state.conf, query, [], timeout: state.timeout) do

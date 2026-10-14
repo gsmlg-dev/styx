@@ -55,27 +55,25 @@ Add `:styx` to your list of deps in `mix.exs`:
 ```
 
 Then run `mix deps.get` to install Styx and its dependencies. After the packages are installed you
-must create a database migration to add the `oban_jobs` table to your database:
+must create a database migration to add the `styx_jobs` table to your database:
 
 ```bash
-mix ecto.gen.migration add_oban_jobs_table
+mix ecto.gen.migration add_styx_jobs_table
 ```
 
 Open the generated migration in your editor and call the `up` and `down` functions on
 `Styx.Migration`:
 
 ```elixir
-defmodule MyApp.Repo.Migrations.AddObanJobsTable do
+defmodule MyApp.Repo.Migrations.AddStyxJobsTable do
   use Ecto.Migration
 
   def up do
-    Styx.Migration.up(version: 14)
+    Styx.Migration.up()
   end
 
-  # We specify `version: 1` in `down`, ensuring that we'll roll all the way back down if
-  # necessary, regardless of which version we've migrated `up` to.
   def down do
-    Styx.Migration.down(version: 1)
+    Styx.Migration.down()
   end
 end
 ```

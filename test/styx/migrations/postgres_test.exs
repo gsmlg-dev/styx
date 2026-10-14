@@ -52,13 +52,9 @@ defmodule Styx.Migrations.PostgresTest do
   end
 
   test "verifying the database is migrated to the required version" do
-    :persistent_term.put({StepMigration, :up}, current_version() - 1)
+    assert :ok = Ecto.Migrator.up(UnboxedRepo, @base_version, DefaultMigration)
 
-    assert :ok = Ecto.Migrator.up(UnboxedRepo, @base_version, StepMigration)
-
-    assert_raise RuntimeError, ~r/migrations are outdated/, fn ->
-      start_supervised_styx!(repo: UnboxedRepo, testing: :manual, prefix: "migrating")
-    end
+    assert :ok = Styx.Migration.verify_migrated!(repo: UnboxedRepo, prefix: "migrating")
   after
     clear_migrated()
   end
@@ -71,21 +67,15 @@ defmodule Styx.Migrations.PostgresTest do
       assert migrated_version() == up
     end
 
-    assert table_exists?("oban_jobs")
-    assert table_exists?("oban_peers")
+    assert table_exists?("styx_jobs")
+    assert table_exists?("styx_peers")
     assert migrated_version() == current_version()
-
-    :persistent_term.put({StepMigration, :down}, 2)
-    assert :ok = Ecto.Migrator.down(UnboxedRepo, @base_version + 2, StepMigration)
-
-    assert table_exists?("oban_jobs")
-    assert migrated_version() == 1
 
     :persistent_term.put({StepMigration, :down}, 1)
     assert :ok = Ecto.Migrator.down(UnboxedRepo, @base_version + 1, StepMigration)
 
-    refute table_exists?("oban_jobs")
-    refute table_exists?("oban_peers")
+    refute table_exists?("styx_jobs")
+    refute table_exists?("styx_peers")
   after
     clear_migrated()
   end
@@ -93,14 +83,14 @@ defmodule Styx.Migrations.PostgresTest do
   test "migrating up and down between default versions" do
     assert :ok = Ecto.Migrator.up(UnboxedRepo, @base_version, DefaultMigration)
 
-    assert table_exists?("oban_jobs")
+    assert table_exists?("styx_jobs")
     assert migrated_version() == current_version()
 
     # Migrating once more to replicate multiple migrations that don't specify a version.
     assert :ok = Ecto.Migrator.up(UnboxedRepo, @base_version + 1, DefaultMigration)
     assert :ok = Ecto.Migrator.down(UnboxedRepo, @base_version + 1, DefaultMigration)
 
-    refute table_exists?("oban_jobs")
+    refute table_exists?("styx_jobs")
 
     # Migrating once more to replicate multiple migrations that don't specify a version.
     assert :ok = Ecto.Migrator.down(UnboxedRepo, @base_version, DefaultMigration)
@@ -113,7 +103,7 @@ defmodule Styx.Migrations.PostgresTest do
       Ecto.Migrator.up(UnboxedRepo, @base_version, DefaultMigrationNoSchemaCreation)
     end
 
-    refute table_exists?("oban_jobs")
+    refute table_exists?("styx_jobs")
     assert migrated_version() == 0
   after
     clear_migrated()
@@ -122,7 +112,7 @@ defmodule Styx.Migrations.PostgresTest do
   test "treating a non-numeric version comment as infinity" do
     assert :ok = Ecto.Migrator.up(UnboxedRepo, @base_version, DefaultMigration)
 
-    UnboxedRepo.query!("COMMENT ON TABLE migrating.oban_jobs IS '∞'")
+    UnboxedRepo.query!("COMMENT ON TABLE migrating.styx_jobs IS '∞'")
 
     assert migrated_version() == :infinity
     assert start_supervised_styx!(repo: UnboxedRepo, testing: :manual, prefix: "migrating")
@@ -135,7 +125,7 @@ defmodule Styx.Migrations.PostgresTest do
 
     assert :ok = Ecto.Migrator.up(UnboxedRepo, @base_version, DefaultMigrationNoSchemaCreation)
 
-    assert table_exists?("oban_jobs")
+    assert table_exists?("styx_jobs")
     assert migrated_version() == current_version()
   after
     clear_migrated()

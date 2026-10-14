@@ -136,7 +136,7 @@ have multiple separate job tables.
 To use a prefix you first have to specify it within your migration:
 
 ```elixir
-defmodule MyApp.Repo.Migrations.AddPrefixedObanJobsTable do
+defmodule MyApp.Repo.Migrations.AddPrefixedStyxJobsTable do
   use Ecto.Migration
 
   def up do
@@ -159,11 +159,11 @@ config :my_app, Styx,
   queues: [default: 10]
 ```
 
-Now all jobs are inserted and executed using the `private.oban_jobs` table. Note that while
-`Styx.insert/2,4` will write jobs in the `private.oban_jobs` table automatically, you'll need to
+Now all jobs are inserted and executed using the `private.styx_jobs` table. Note that while
+`Styx.insert/2,4` will write jobs in the `private.styx_jobs` table automatically, you'll need to
 specify a prefix *manually* if you insert jobs directly through a repo.
 
-Not only is the `oban_jobs` table isolated within the schema, but all notification events are also
+Not only is the `styx_jobs` table isolated within the schema, but all notification events are also
 isolated. That means that insert/update events will only dispatch new jobs for their prefix.
 
 ### Dynamic Repositories

@@ -132,7 +132,7 @@ defmodule Styx.Job do
   @type changeset_list :: Enumerable.t(changeset())
   @type changeset_list_fun :: (map() -> changeset_list())
 
-  schema "oban_jobs" do
+  schema "styx_jobs" do
     field :state, :string, default: "available"
     field :queue, :string, default: "default"
     field :worker, :string

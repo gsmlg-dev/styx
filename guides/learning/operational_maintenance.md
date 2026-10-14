@@ -20,7 +20,7 @@ indefinitely.
 
 Job stats and queue introspection are built on *keeping job rows in the database* after they have
 completed. This allows administrators to review completed jobs and build informative aggregates,
-at the expense of storage and an unbounded table size. To prevent the `oban_jobs` table from
+at the expense of storage and an unbounded table size. To prevent the `styx_jobs` table from
 growing indefinitely, Styx actively prunes `completed`, `cancelled`, and `discarded` jobs.
 
 By default, the [Pruner](`Styx.Pruner`) retains jobs for 60 seconds. You can configure a longer
@@ -43,13 +43,13 @@ This happens in the background without impacting job execution.
 
 ## Indexes
 
-Styx relies on database indexes to efficiently query and process jobs. As the `oban_jobs` table
+Styx relies on database indexes to efficiently query and process jobs. As the `styx_jobs` table
 experiences high write activity, index bloat and fragmentation can occur over time, potentially
 degrading performance.
 
 #### Understanding Styx Indexes
 
-Styx creates several important indexes on the `oban_jobs` table:
+Styx creates several important indexes on the `styx_jobs` table:
 
 - Indexes for efficiently fetching jobs by state and priority
 - Indexes for scheduling future jobs

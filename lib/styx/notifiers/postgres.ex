@@ -194,11 +194,11 @@ if Code.ensure_loaded?(Postgrex) do
     end
 
     defp to_full_channel(channel, %Config{prefix: prefix}) do
-      "#{prefix}.oban_#{channel}"
+      "#{prefix}.styx_#{channel}"
     end
 
     defp reverse_channel(full_channel) do
-      [_prefix, "oban_" <> shortcut] = String.split(full_channel, ".", parts: 2)
+      [_prefix, "styx_" <> shortcut] = String.split(full_channel, ".", parts: 2)
 
       String.to_existing_atom(shortcut)
     end

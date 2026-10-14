@@ -9,7 +9,7 @@ defmodule Styx.Migrations.SQLite do
 
   @impl Styx.Migration
   def up(_opts) do
-    create_if_not_exists table(:oban_jobs, primary_key: false) do
+    create_if_not_exists table(:styx_jobs, primary_key: false) do
       add :id, :bigserial, primary_key: true
       add :state, :text, null: false, default: "available"
       add :queue, :text, null: false, default: "default"
@@ -38,14 +38,14 @@ defmodule Styx.Migrations.SQLite do
       add :discarded_at, :utc_datetime_usec
     end
 
-    create_if_not_exists index(:oban_jobs, [:state, :queue, :priority, :scheduled_at, :id])
+    create_if_not_exists index(:styx_jobs, [:state, :queue, :priority, :scheduled_at, :id])
 
     :ok
   end
 
   @impl Styx.Migration
   def down(_opts) do
-    drop_if_exists table(:oban_jobs)
+    drop_if_exists table(:styx_jobs)
 
     :ok
   end
@@ -55,7 +55,7 @@ defmodule Styx.Migrations.SQLite do
     repo = Keyword.get_lazy(opts, :repo, fn -> repo() end)
 
     query = """
-    SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'oban_jobs'
+    SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'styx_jobs'
     """
 
     case repo.query(query, [], log: false) do

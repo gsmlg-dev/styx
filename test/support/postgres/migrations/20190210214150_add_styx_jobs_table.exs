@@ -1,4 +1,4 @@
-defmodule Styx.Test.Repo.Postgres.Migrations.AddObanJobsTable do
+defmodule Styx.Test.Repo.Postgres.Migrations.AddStyxJobsTable do
   use Ecto.Migration
 
   def up do

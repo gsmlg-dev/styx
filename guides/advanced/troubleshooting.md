@@ -56,7 +56,7 @@ leader again on the next startup, making it appear as though `@reboot` jobs aren
      ...
    ```
 
-3. **Clear leadership manually** - If needed, you can clear the `oban_peers` table in your database to force immediate leadership.
+3. **Clear leadership manually** - If needed, you can clear the `styx_peers` table in your database to force immediate leadership.
 
 Keep the default peer in production for better reliability and persistence across restarts.
 
@@ -86,16 +86,16 @@ without notifications-see [Leadership Without Notifications][lwn] in the cluster
 
 ## Unexpectedly Re-running All Migrations
 
-Without a version comment on the `oban_jobs` table, it will rerun all of the migrations. This can
+Without a version comment on the `styx_jobs` table, it will rerun all of the migrations. This can
 happen when comments are stripped when restoring from a backup, most commonly during a transition
 from one database to another.
 
 The fix is to set the latest migrated version as a comment. To start, search through your previous
 migrations and find the last time you ran an Styx migration. Once you've found the latest version,
-e.g. `version: 10`, then you can set that as a comment on the `oban_jobs` table:
+e.g. `version: 1`, then you can set that as a comment on the `styx_jobs` table:
 
 ```sql
-COMMENT ON TABLE public.oban_jobs IS '10'
+COMMENT ON TABLE public.styx_jobs IS '1'
 ```
 
 Once the comment is in place only the migrations from that version onward will

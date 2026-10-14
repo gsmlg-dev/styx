@@ -40,14 +40,14 @@ Disable triggers in your Styx configuration:
 ## Tuning Autovacuum
 
 Default autovacuum settings are sized for general purpose tables and may fall behind on
-`oban_jobs`, where state transitions update a row and pruning deletes in bulk. Dead tuples
+`styx_jobs`, where state transitions update a row and pruning deletes in bulk. Dead tuples
 accumulate between vacuums and planner statistics go stale, which effects critical operations like
 job fetching.
 
-Tune autovacuum for the `oban_jobs` table alone rather than the whole database:
+Tune autovacuum for the `styx_jobs` table alone rather than the whole database:
 
 ```sql
-ALTER TABLE oban_jobs SET (
+ALTER TABLE styx_jobs SET (
   -- Vacuum earlier on large tables
   autovacuum_vacuum_scale_factor = 0.02,
   autovacuum_vacuum_threshold = 50,
@@ -93,7 +93,7 @@ use Styx.Worker, unique: [
 
 ## Apply Reindexing
 
-To stop oban_jobs indexes from taking up so much space on disk, use the
+To stop styx_jobs indexes from taking up so much space on disk, use the
 `Styx.Reindexer` plugin to rebuild indexes periodically. The Postgres transactional
 model applies to indexes as well as tables. That leaves bloat from inserting, updating, and
 deleting jobs that auto-vacuuming won’t always fix.
@@ -116,11 +116,11 @@ Applications with a large number of scheduled or retryable jobs may benefit from
 to staging. The index isn't necessary for most applications, and maintaining it adds overhead to
 inserts and updates, so verify that staging queries are a bottleneck before adding it.
 
-Create the index concurrently to avoid locking the `oban_jobs` table. Concurrent index operations
+Create the index concurrently to avoid locking the `styx_jobs` table. Concurrent index operations
 must run outside of a transaction and without Ecto's migration lock:
 
 ```elixir
-defmodule MyApp.Repo.Migrations.AddObanJobsStagingIndex do
+defmodule MyApp.Repo.Migrations.AddStyxJobsStagingIndex do
   use Ecto.Migration
 
   @disable_ddl_transaction true
@@ -128,7 +128,7 @@ defmodule MyApp.Repo.Migrations.AddObanJobsStagingIndex do
 
   def change do
     create_if_not_exists index(
-      :oban_jobs,
+      :styx_jobs,
       [:scheduled_at],
       concurrently: true,
       where: "state IN ('scheduled', 'retryable')"

@@ -10,8 +10,8 @@ defmodule BenchHelper do
   end
 
   def reset_db do
-    Repo.query!("TRUNCATE oban_jobs", [], log: false)
-    LiteRepo.query!("DELETE FROM oban_jobs", [], log: false)
+    Repo.query!("TRUNCATE styx_jobs", [], log: false)
+    LiteRepo.query!("DELETE FROM styx_jobs", [], log: false)
   end
 
   def term_to_base64(term) do

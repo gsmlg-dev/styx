@@ -12,7 +12,7 @@ defmodule Styx.Migrations.MyXQL do
     states =
       :"ENUM('suspended', 'available', 'scheduled', 'executing', 'retryable', 'completed', 'cancelled', 'discarded')"
 
-    create_if_not_exists table(:oban_jobs, primary_key: false) do
+    create_if_not_exists table(:styx_jobs, primary_key: false) do
       add :id, :bigserial, primary_key: true
       add :state, states, null: false, default: "available"
       add :queue, :string, null: false, default: "default"
@@ -34,24 +34,24 @@ defmodule Styx.Migrations.MyXQL do
       add :discarded_at, :utc_datetime_usec
     end
 
-    create_if_not_exists table(:oban_peers, primary_key: false) do
+    create_if_not_exists table(:styx_peers, primary_key: false) do
       add :name, :string, null: false, primary_key: true
       add :node, :string, null: false
       add :started_at, :utc_datetime_usec, null: false
       add :expires_at, :utc_datetime_usec, null: false
     end
 
-    create index(:oban_jobs, [:state, :queue, :priority, :scheduled_at, :id])
+    create index(:styx_jobs, [:state, :queue, :priority, :scheduled_at, :id])
 
-    create constraint(:oban_jobs, :attempt_range, check: "attempt between 0 and max_attempts")
-    create constraint(:oban_jobs, :non_negative_priority, check: "priority >= 0")
-    create constraint(:oban_jobs, :positive_max_attempts, check: "max_attempts > 0")
+    create constraint(:styx_jobs, :attempt_range, check: "attempt between 0 and max_attempts")
+    create constraint(:styx_jobs, :non_negative_priority, check: "priority >= 0")
+    create constraint(:styx_jobs, :positive_max_attempts, check: "max_attempts > 0")
 
-    create constraint(:oban_jobs, :queue_length,
+    create constraint(:styx_jobs, :queue_length,
              check: "char_length(queue) > 0 AND char_length(queue) < 128"
            )
 
-    create constraint(:oban_jobs, :worker_length,
+    create constraint(:styx_jobs, :worker_length,
              check: "char_length(worker) > 0 AND char_length(worker) < 128"
            )
 
@@ -60,8 +60,8 @@ defmodule Styx.Migrations.MyXQL do
 
   @impl Styx.Migration
   def down(_opts) do
-    drop_if_exists table(:oban_peers)
-    drop_if_exists table(:oban_jobs)
+    drop_if_exists table(:styx_peers)
+    drop_if_exists table(:styx_jobs)
 
     :ok
   end
@@ -76,7 +76,7 @@ defmodule Styx.Migrations.MyXQL do
     SELECT 1
     FROM information_schema.TABLES
     WHERE TABLE_SCHEMA = '#{database}'
-    AND TABLE_NAME = 'oban_jobs'
+    AND TABLE_NAME = 'styx_jobs'
     """
 
     case repo.query(query, [], log: false) do
