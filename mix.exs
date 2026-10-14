@@ -2,13 +2,13 @@ defmodule Styx.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/gsmlg-dev/styx"
-  @version "2.24.2"
+  @version "0.1.0"
 
   def project do
     [
       app: :styx,
       version: @version,
-      elixir: "~> 1.15",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -41,7 +41,7 @@ defmodule Styx.MixProject do
         extras: extras(),
         groups_for_extras: groups_for_extras(),
         groups_for_modules: groups_for_modules(),
-        skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
+        skip_undefined_reference_warnings_on: []
       ]
     ]
   end
@@ -115,8 +115,7 @@ defmodule Styx.MixProject do
       "guides/testing/testing.md",
       "guides/testing/testing_workers.md",
       "guides/testing/testing_queues.md",
-      "guides/testing/testing_config.md",
-      "CHANGELOG.md": [title: "Changelog"]
+      "guides/testing/testing_config.md"
     ]
   end
 
@@ -181,9 +180,8 @@ defmodule Styx.MixProject do
     [
       maintainers: ["Styx Contributors"],
       licenses: ["Apache-2.0"],
-      files: ~w(lib .formatter.exs mix.exs README* CHANGELOG* LICENSE* NOTICE*),
+      files: ~w(lib .formatter.exs mix.exs README* LICENSE* NOTICE*),
       links: %{
-        Changelog: "#{@source_url}/blob/main/CHANGELOG.md",
         GitHub: @source_url
       }
     ]

@@ -7,19 +7,19 @@ There are three installation mechanisms available:
 
 * [Semi-Automatic Installation](#semi-automatic-installation) using an igniter powered mix task
 * [Igniter Installation](#igniter-installation) fully automatic installation using igniter
-* [Manual Installation](#manual-installation) add oban and handle all steps manually
+* [Manual Installation](#manual-installation) add styx and handle all steps manually
 
 ## Semi-Automatic Installation
 
-It's possible to use the `oban.install` task without the `igniter.install` escript available.
-First, add `oban` and `igniter` to your deps in `mix.exs`:
+It's possible to use the `styx.install` task without the `igniter.install` escript available.
+First, add `styx` and `igniter` to your deps in `mix.exs`:
 
 ```elixir
-{:styx, "~> 2.23"},
+{:styx, "~> 0.1"},
 {:igniter, "~> 0.5", only: [:dev]},
 ```
 
-Run `mix deps.get` to fetch `oban`, then run the install task:
+Run `mix deps.get` to fetch `styx`, then run the install task:
 
 ```bash
 mix styx.install
@@ -36,7 +36,7 @@ single command:
 mix igniter.install styx
 ```
 
-That will add the latest version of `oban` to your dependencies before running the installer.
+That will add the latest version of `styx` to your dependencies before running the installer.
 Installation will use the application's default Ecto repo, select the corresponding engine, and
 set the pubsub notifier accordingly.
 
@@ -51,7 +51,7 @@ mix igniter.install styx --repo MyApp.LiteRepo
 Add `:styx` to your list of deps in `mix.exs`:
 
 ```elixir
-{:styx, "~> 2.23"}
+{:styx, "~> 0.1"}
 ```
 
 Then run `mix deps.get` to install Styx and its dependencies. After the packages are installed you

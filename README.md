@@ -125,8 +125,8 @@ suitability for production.
 
 Styx requires:
 
-* Elixir 1.15+
-* Erlang 24+
+* Elixir 1.18+
+* Erlang 25+
 * PostgreSQL 14.0+, MySQL 8.4+, or SQLite3 3.37.0+
 
 ## Installation
@@ -181,8 +181,6 @@ scheduling, unique jobs, testing, and operational maintenance.
 Styx is derived from [Oban](https://github.com/oban-bg/oban), originally created by Parker Selbert.
 Styx is an independent open-source project and is not affiliated with, endorsed by, or sponsored by
 Sorensen Selbert LLC or the upstream Oban project.
-
-Historical Oban releases and changelogs remain documented for provenance in [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 

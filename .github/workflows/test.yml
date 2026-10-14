@@ -32,8 +32,8 @@ jobs:
       matrix:
         include:
           - pair:
-              elixir: "1.16"
-              otp: "25.3"
+              elixir: "1.18"
+              otp: "27.3"
               mysql: "8.4"
               postgres: "14.22-alpine"
             exclude_tags: "lite"
