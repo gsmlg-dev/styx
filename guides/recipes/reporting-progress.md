@@ -23,7 +23,7 @@ complete as each file is added and push a message to the user.
 
 ### Before We Start
 
-In the [forum question that prompted this guide][guide] the work was done
+In a common progress reporting scenario, the work is done
 externally by a port process. Working with ports is well outside the scope of
 this guide, so I've modified it for the sake of simplicity. The result is
 slightly contrived as it puts both processes within the same module, which isn't
@@ -121,6 +121,5 @@ run.
 This technique is suitable for any _single_ long running job where an end user
 is waiting on the results.
 
-[guide]: https://elixirforum.com/t/oban-reliable-and-observable-job-processing/22449/52
 [chan]: https://phoenix.hexdocs.pm/channels.html#content
 [wavy]: https://www.quora.com/When-someone-says-this-explanation-was-hand-wavy-what-does-that-mean

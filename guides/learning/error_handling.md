@@ -77,9 +77,9 @@ any other application monitoring platform.
 Some error-reporting and application-monitoring services support reporting Styx errors out of the
 box:
 
-  - Sentry — [Styx integration documentation][sentry-integration]
-  - AppSignal — [Styx integration documentation][appsignal-integration]
+  - Sentry — [Sentry package for Elixir][sentry-integration]
+  - AppSignal — [AppSignal package for Elixir][appsignal-integration]
 
 [honeybadger]: https://www.honeybadger.io
-[sentry-integration]: https://docs.sentry.io/platforms/elixir/integrations/oban
-[appsignal-integration]: https://docs.appsignal.com/elixir/integrations/oban.html
+[sentry-integration]: https://hex.pm/packages/sentry
+[appsignal-integration]: https://hex.pm/packages/appsignal

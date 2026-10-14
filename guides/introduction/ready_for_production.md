@@ -89,9 +89,7 @@ You can use exception events to send error reports to Honeybadger, Rollbar, AppS
 or any other application monitoring platform.
 
 Some libraries like AppSignal, ErrorTracker or Sentry automatically handle these events without 
-requiring any extra code on your application. You can take a look at ErrorTracker's 
-[Styx integration](https://github.com/elixir-error-tracker/error-tracker/blob/main/lib/error_tracker/integrations/oban.ex) 
-as an example on how to attach to and use `Styx.Telemetry` events.
+requiring any extra code on your application.
 
 If you need a custom integration you can add a reporter module that fit your needs. 
 Here's an example reporter module for [Sentry](https://hex.pm/packages/sentry):
@@ -135,7 +133,7 @@ tools built on `Styx.Telemetry`:
   metrics from job events, producer events, and also from internal polling jobs to monitor queue
   sizes.
 
-* [AppSignal](https://docs.appsignal.com/elixir/integrations/oban.html)—The AppSignal for Elixir
+* [AppSignal](https://hex.pm/packages/appsignal)—The AppSignal for Elixir
   package instruments jobs performed by Styx workers, and collects metrics about your jobs'
   performance.
 

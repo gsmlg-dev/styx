@@ -118,7 +118,3 @@ like staging, we can run _all_ the queues on a single node using the exact same
 code we use in production. In the future, if other workers start to utilize too
 much CPU or RAM we can shift them to the worker node **without any code
 changes**.
-
-_This guide was [prompted by an inquiry][oi82] on the Styx issue tracker._
-
-[oi82]: https://github.com/oban-bg/oban/issues/82

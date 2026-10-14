@@ -56,11 +56,6 @@ approach is more accurate and entirely self contained—when and if the digest
 interval changes the scheduling will pick it up automatically once our code
 deploys.
 
-_An [extensive discussion][oi27] on the Styx issue tracker prompted this example
-along with the underlying feature that made it possible._
-
-[oi27]: https://github.com/oban-bg/oban/issues/27
-
 ## Considerations for Scheduling Jobs in the Very-Near-Future
 
 If you use the `scheduled_in` or `scheduled_at` options with a value that will
