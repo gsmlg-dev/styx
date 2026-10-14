@@ -1,0 +1,102 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "guides/**"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "guides/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (${{ matrix.pair.elixir }}, ${{ matrix.pair.otp }}, mysql ${{ matrix.pair.mysql }}, pg ${{ matrix.pair.postgres }})
+    env:
+      MIX_ENV: test
+      MYSQL_URL: mysql://root@localhost:3306/oban_test
+      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/oban_test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pair:
+              elixir: "1.16"
+              otp: "25.3"
+              mysql: "8.4"
+              postgres: "14.22-alpine"
+            exclude_tags: "lite"
+          - pair:
+              elixir: "1.20"
+              otp: "29.0"
+              mysql: "9.1"
+              postgres: "18.3-alpine"
+            exclude_tags: "gossip"
+
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:${{matrix.pair.postgres}}
+        env:
+          POSTGRES_DB: oban_test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      mysql:
+        image: mysql:${{matrix.pair.mysql}}
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.pair.otp}}
+          elixir-version: ${{matrix.pair.elixir}}
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{matrix.pair.elixir}}-${{matrix.pair.otp}}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{matrix.pair.elixir}}-${{matrix.pair.otp}}-
+
+      - name: Install dependencies
+        run: mix deps.get --only test
+
+      - name: Compile dependencies
+        run: mix deps.compile
+
+      - name: Run migrations
+        run: mix test.setup
+
+      - name: Run tests
+        run: mix test --exclude ${{ matrix.exclude_tags }} || mix test --failed

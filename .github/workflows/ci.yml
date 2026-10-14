@@ -2,8 +2,6 @@ name: ci
 
 on:
   push:
-    branches:
-      - main
     paths-ignore:
       - "guides/**"
   pull_request:
@@ -16,105 +14,46 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 jobs:
   ci:
+    name: static-checks
+    runs-on: ubuntu-24.04
     env:
       MIX_ENV: test
-      MYSQL_URL: mysql://root@localhost:3306/oban_test
-      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/oban_test
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - pair:
-              elixir: "1.16"
-              otp: "25.3"
-              mysql: "8.4"
-              postgres: "14.22-alpine"
-            exclude_tags: "lite"
-          - pair:
-              elixir: "1.20"
-              otp: "29.0"
-              mysql: "9.1"
-              postgres: "18.3-alpine"
-            exclude_tags: "gossip"
-            lint: lint
-
-    runs-on: ubuntu-24.04
-
-    services:
-      postgres:
-        image: postgres:${{matrix.pair.postgres}}
-        env:
-          POSTGRES_DB: oban_test
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      mysql:
-        image: mysql:${{matrix.pair.mysql}}
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-        options: >-
-          --health-cmd "mysqladmin ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 3306:3306
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.pair.otp}}
-          elixir-version: ${{matrix.pair.elixir}}
+          otp-version: "29.0"
+          elixir-version: "1.20"
 
-      - uses: actions/cache@v6
+      - uses: actions/cache@v4
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-${{matrix.pair.elixir}}-${{matrix.pair.otp}}-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-mix-1.20-29.0-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
-            ${{ runner.os }}-mix-${{matrix.pair.elixir}}-${{matrix.pair.otp}}-
+            ${{ runner.os }}-mix-1.20-29.0-
 
-      - name: Run mix deps.get
+      - name: Install dependencies
         run: mix deps.get --only test
 
-      - name: Run mix format
+      - name: Check formatting
         run: mix format --check-formatted
-        if: ${{ matrix.lint }}
 
-      - name: Run mix deps.unlock
+      - name: Check unused dependencies
         run: mix deps.unlock --check-unused
-        if: ${{ matrix.lint }}
 
-      - name: Run mix deps.compile
-        run: mix deps.compile
-
-      - name: Run mix compile
+      - name: Compile
         run: mix compile --warnings-as-errors
-        if: ${{ matrix.lint }}
 
-      - name: Run credo
+      - name: Run Credo
         run: mix credo --strict
-        if: ${{ matrix.lint }}
 
-      - name: Run mix ecto.migrate
-        run: mix test.setup
-
-      - name: Run mix test
-        run: mix test --exclude ${{ matrix.exclude_tags }} || mix test --failed
-
-      - name: Run dialyzer
+      - name: Run Dialyzer
         run: mix dialyzer
-        if: ${{ matrix.lint }}
