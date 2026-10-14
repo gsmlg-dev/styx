@@ -9,6 +9,7 @@ on:
   pull_request:
     paths-ignore:
       - "guides/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
