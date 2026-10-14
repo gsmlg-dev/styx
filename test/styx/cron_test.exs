@@ -176,7 +176,7 @@ defmodule Styx.CronTest do
 
   test "evaluating reboot after acquiring leadership" do
     name =
-      start_supervised_oban!(
+      start_supervised_styx!(
         peer: {Styx.Peers.Isolated, leader?: false},
         plugins: [{Cron, crontab: [{"@reboot", CronWork, args: worker_args(1)}]}]
       )
@@ -215,7 +215,7 @@ defmodule Styx.CronTest do
 
   defp run_with_opts(opts) do
     [plugins: [{Cron, opts}]]
-    |> start_supervised_oban!()
+    |> start_supervised_styx!()
     |> send_evaluate()
     |> stop_supervised()
   end

@@ -57,7 +57,7 @@ defmodule Styx.PrunerTest do
       %Job{id: id_5} = insert_historical("completed", :completed_at, 59, 59)
       %Job{id: id_6} = insert_historical("completed", :completed_at, 61, 59)
 
-      name = start_supervised_oban!(plugins: [{Pruner, interval: 10, max_age: 60}])
+      name = start_supervised_styx!(plugins: [{Pruner, interval: 10, max_age: 60}])
 
       assert_receive {:event, :stop, _, %{plugin: Pruner, conf: %{name: ^name}} = meta}
       assert %{pruned_count: 6, pruned_jobs: [_ | _]} = meta
@@ -75,7 +75,7 @@ defmodule Styx.PrunerTest do
       %Job{id: _id_} = insert_historical("completed", :completed_at, 61, 61)
       %Job{id: kept} = insert_historical("completed", :completed_at, 59, 59)
 
-      name = start_supervised_oban!(plugins: [{Pruner, interval: 10, max_age: {1, :minute}}])
+      name = start_supervised_styx!(plugins: [{Pruner, interval: 10, max_age: {1, :minute}}])
 
       assert_receive {:event, :stop, _, %{plugin: Pruner, conf: %{name: ^name}} = meta}
       assert %{pruned_count: 1} = meta

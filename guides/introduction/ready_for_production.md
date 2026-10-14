@@ -97,9 +97,9 @@ If you need a custom integration you can add a reporter module that fit your nee
 Here's an example reporter module for [Sentry](https://hex.pm/packages/sentry):
 
 ```elixir
-defmodule MyApp.ObanReporter do
+defmodule MyApp.StyxReporter do
   def attach do
-    :telemetry.attach("oban-errors", [:styx, :job, :exception], &__MODULE__.handle_event/4, [])
+    :telemetry.attach("styx-errors", [:styx, :job, :exception], &__MODULE__.handle_event/4, [])
   end
 
   def handle_event([:styx, :job, :exception], measure, meta, _) do
@@ -119,7 +119,7 @@ Attach the handler when your application boots:
 # application.ex
 @impl Application
 def start(_type, _args) do
-  MyApp.ObanReporter.attach()
+  MyApp.StyxReporter.attach()
 end
 ```
 
@@ -130,10 +130,6 @@ job maintenance.
 
 For additional observability and introspection, consider integrating with one of these external
 tools built on `Styx.Telemetry`:
-
-* [Styx Web](https://hex.pm/packages/oban_web)—an official Styx package, it's a view of jobs,
-  queues, and metrics that you host directly within your application. Powered by Phoenix LiveView
-  and Styx Metrics, it is extremely lightweight and continuously updated.
 
 * [PromEx](https://hex.pm/packages/prom_ex)—Prometheus metrics and Grafana dashboards based on
   metrics from job events, producer events, and also from internal polling jobs to monitor queue

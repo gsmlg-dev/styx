@@ -34,7 +34,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "insert/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "inserting a single job", %{name: name} do
         TelemetryHandler.attach_events(styx_name: name)
@@ -299,7 +299,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "insert/4" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "inserting multiple jobs within a multi", %{name: name} do
         TelemetryHandler.attach_events(styx_name: name)
@@ -336,7 +336,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "insert!/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "inserting a single job", %{name: name} do
         assert %Job{} = Styx.insert!(name, Worker.new(%{ref: 1}))
@@ -350,7 +350,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "insert_all/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "inserting multiple jobs", %{name: name} do
         TelemetryHandler.attach_events(styx_name: name)
@@ -415,7 +415,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "insert_all/3" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "inserting multiple jobs with additional options", %{name: name} do
         assert [%Job{}] = Styx.insert_all(name, [Worker.new(%{ref: 0})], timeout: 1_000)
@@ -423,7 +423,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "insert_all/4" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "inserting multiple jobs within a multi", %{name: name} do
         TelemetryHandler.attach_events(styx_name: name)
@@ -467,7 +467,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "prune_jobs/3" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "deleting jobs in prunable states", %{name: name} do
         TelemetryHandler.attach_events(span_type: [:job, [:engine, :prune_jobs]], styx_name: name)
@@ -503,7 +503,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "cancel_job/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       @describetag styx_opts: [queues: [alpha: 5], stager: [interval: 5], testing: :disabled]
 
@@ -552,7 +552,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "all_jobs/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "fetching all jobs from an unscoped queryable", %{name: name} do
         job_1 = insert!(name, %{ref: 1}, state: "available")
@@ -582,7 +582,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "cancel_all_jobs/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       @describetag styx_opts: [queues: [alpha: 5], stager: [interval: 5], testing: :disabled]
 
@@ -614,7 +614,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "delete_job/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "deleting a single job", %{name: name} do
         TelemetryHandler.attach_events(span_type: [:job, [:engine, :delete_job]], styx_name: name)
@@ -633,7 +633,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "delete_all_jobs/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "deleting multiple jobs based on a query", %{name: name} do
         TelemetryHandler.attach_events(
@@ -656,7 +656,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "retry_job/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "retrying jobs from multiple states", %{name: name} do
         job_1 = insert!(name, %{ref: 1}, state: "discarded", max_attempts: 20, attempt: 20)
@@ -680,7 +680,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "retry_all_jobs/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "retrying all retryable jobs", %{name: name} do
         TelemetryHandler.attach_events(span_type: [[:engine, :retry_all_jobs]], styx_name: name)
@@ -702,7 +702,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "snooze_job/3" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "rolling back the attempt and counting snoozes", %{name: name} do
         conf = Styx.config(name)
@@ -739,7 +739,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "acking" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "stale executions can't overwrite a newer execution's state", %{name: name} do
         conf = Styx.config(name)
@@ -781,7 +781,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "update_job/3" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "updating jobs with a map of changes or function", %{name: name} do
         TelemetryHandler.attach_events(span_type: [[:engine, :update_job]], styx_name: name)
@@ -804,7 +804,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "shutdown/2" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       test "recording that the queue is shutting down", %{name: name} do
         conf = Styx.config(name)
@@ -817,7 +817,7 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
     end
 
     describe "integration" do
-      setup :start_supervised_oban
+      setup :start_supervised_styx
 
       @describetag styx_opts: [queues: [alpha: 3], stager: [interval: 5], testing: :disabled]
 
@@ -946,14 +946,14 @@ for engine <- [Styx.Engines.Basic, Styx.Engines.Lite, Styx.Engines.Dolphin] do
       |> Styx.Repo.reload(job)
     end
 
-    defp start_supervised_oban(context) do
+    defp start_supervised_styx(context) do
       name =
         context
         |> Map.get(:styx_opts, [])
         |> Keyword.put_new(:engine, @engine)
         |> Keyword.put_new(:repo, @repo)
         |> Keyword.put_new(:testing, :manual)
-        |> start_supervised_oban!()
+        |> start_supervised_styx!()
 
       {:ok, name: name}
     end

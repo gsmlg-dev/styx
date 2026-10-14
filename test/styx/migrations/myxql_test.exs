@@ -11,7 +11,7 @@ defmodule Styx.Migrations.MyXQLTest do
     def init(_, _) do
       opts =
         DolphinRepo.config()
-        |> Keyword.put(:database, "oban_migrations")
+        |> Keyword.put(:database, "styx_migrations")
         |> Keyword.delete(:pool)
 
       {:ok, opts}
@@ -46,7 +46,7 @@ defmodule Styx.Migrations.MyXQLTest do
     start_supervised!(MigrationRepo)
 
     assert_raise RuntimeError, ~r/migrations have not been run/, fn ->
-      start_supervised_oban!(repo: MigrationRepo, testing: :manual)
+      start_supervised_styx!(repo: MigrationRepo, testing: :manual)
     end
   after
     storage_down()
@@ -71,7 +71,7 @@ defmodule Styx.Migrations.MyXQLTest do
     SELECT EXISTS (
       SELECT 1
       FROM information_schema.TABLES
-      WHERE TABLE_SCHEMA = 'oban_migrations'
+      WHERE TABLE_SCHEMA = 'styx_migrations'
       AND TABLE_NAME = '#{name}'
     )
     """

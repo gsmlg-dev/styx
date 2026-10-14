@@ -2,7 +2,7 @@ defmodule Styx.Engines.BasicTest do
   use Styx.Case, async: true
 
   test "inserting jobs with a custom prefix" do
-    name = start_supervised_oban!(prefix: "private")
+    name = start_supervised_styx!(prefix: "private")
 
     Styx.insert!(name, Worker.new(%{ref: 1, action: "OK"}))
 
@@ -10,7 +10,7 @@ defmodule Styx.Engines.BasicTest do
   end
 
   test "inserting unique jobs with a custom prefix" do
-    name = start_supervised_oban!(prefix: "private")
+    name = start_supervised_styx!(prefix: "private")
     opts = [unique: [period: 60, fields: [:worker]]]
 
     Styx.insert!(name, Worker.new(%{ref: 1, action: "OK"}, opts))

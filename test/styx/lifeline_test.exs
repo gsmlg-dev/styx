@@ -30,7 +30,7 @@ defmodule Styx.LifelineTest do
 
   describe "integration" do
     test "rescuing executing jobs older than the rescue window" do
-      name = start_supervised_oban!(plugins: [{Lifeline, rescue_after: 5_000}])
+      name = start_supervised_styx!(plugins: [{Lifeline, rescue_after: 5_000}])
 
       TelemetryHandler.attach_events(styx_name: name)
 
@@ -54,7 +54,7 @@ defmodule Styx.LifelineTest do
     end
 
     test "rescuing jobs within a custom prefix" do
-      name = start_supervised_oban!(prefix: "private", plugins: [{Lifeline, rescue_after: 5_000}])
+      name = start_supervised_styx!(prefix: "private", plugins: [{Lifeline, rescue_after: 5_000}])
 
       TelemetryHandler.attach_events(styx_name: name)
 
@@ -76,7 +76,7 @@ defmodule Styx.LifelineTest do
     @tag :dolphin
     test "rescuing stuck jobs using the Dolphin engine" do
       name =
-        start_supervised_oban!(
+        start_supervised_styx!(
           engine: Styx.Engines.Dolphin,
           plugins: [{Lifeline, rescue_after: 5_000}],
           repo: DolphinRepo

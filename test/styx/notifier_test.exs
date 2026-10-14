@@ -134,7 +134,7 @@ for notifier <- [Styx.Notifiers.Isolated, Styx.Notifiers.PG, Styx.Notifiers.Post
       end)
     end
 
-    defp start_styx!, do: start_supervised_oban!(notifier: @notifier, repo: UnboxedRepo)
+    defp start_styx!, do: start_supervised_styx!(notifier: @notifier, repo: UnboxedRepo)
 
     defp to_ident(name), do: name |> Styx.config() |> Config.to_ident()
 

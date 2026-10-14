@@ -169,12 +169,10 @@ iex(1)> Styx.config()
 #=> %Styx.Config{repo: MyApp.Repo}
 ```
 
-You're all set! Add the [Styx Web][web] dashboard for monitoring, get started creating jobs and
-configuring queues in [Usage][use], or head to the [testing guide][test] to learn how to test with
-Styx.
+You're all set! Get started creating jobs and configuring queues in [Usage][use], or head to
+the [testing guide][test] to learn how to test with Styx.
 
 [use]: Styx.html#Usage
-[web]: https://github.com/oban-bg/oban_web
 [igniter]: https://hex.pm/packages/igniter
 [test]: testing.md
 [postgrex]: https://hex.pm/packages/postgrex

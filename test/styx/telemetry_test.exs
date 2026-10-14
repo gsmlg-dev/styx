@@ -9,7 +9,7 @@ defmodule Styx.TelemetryTest do
     send(pid, {:query, meta})
   end
 
-  test "repo operations include the oban config" do
+  test "repo operations include the styx config" do
     :telemetry.attach(
       "repo-test",
       [:styx, :test, :repo, :query],
@@ -17,7 +17,7 @@ defmodule Styx.TelemetryTest do
       self()
     )
 
-    name = start_supervised_oban!(queues: [alpha: 2])
+    name = start_supervised_styx!(queues: [alpha: 2])
     conf = Styx.config(name)
 
     Styx.Repo.all(conf, Styx.Job)
@@ -30,7 +30,7 @@ defmodule Styx.TelemetryTest do
   test "telemetry event is emitted for supervisor initialization" do
     TelemetryHandler.attach_events()
 
-    name = start_supervised_oban!(queues: [alpha: 2])
+    name = start_supervised_styx!(queues: [alpha: 2])
     pid = Styx.Registry.whereis(name)
     conf = Styx.config(name)
 
@@ -41,7 +41,7 @@ defmodule Styx.TelemetryTest do
   test "telemetry events are emitted for executed jobs" do
     TelemetryHandler.attach_events(span_type: [:job])
 
-    name = start_supervised_oban!(stager: [interval: 5], queues: [alpha: 2])
+    name = start_supervised_styx!(stager: [interval: 5], queues: [alpha: 2])
 
     %Job{id: ok_id} = insert!([ref: 1, action: "OK"], tags: ["baz"])
     %Job{id: error_id} = insert!([ref: 2, action: "ERROR"], tags: ["foo"])
@@ -103,7 +103,7 @@ defmodule Styx.TelemetryTest do
   test "reporting jobs still executing after the shutdown period" do
     ref = :telemetry_test.attach_event_handlers(self(), [[:styx, :queue, :shutdown]])
 
-    name = start_supervised_oban!(queues: [alpha: 10], shutdown_grace_period: 5)
+    name = start_supervised_styx!(queues: [alpha: 10], shutdown_grace_period: 5)
 
     insert!(name, [ref: 1, sleep: 500], queue: :alpha)
     insert!(name, [ref: 2, sleep: 500], queue: :alpha)
@@ -134,7 +134,7 @@ defmodule Styx.TelemetryTest do
     test "logging job event details", %{name: name} do
       # Use the Postgres notifier to prevent a notifier switch event and test inline to force
       # immediate execution.
-      start_supervised_oban!(
+      start_supervised_styx!(
         name: name,
         notifier: Styx.Notifiers.Postgres,
         testing: :inline
@@ -343,7 +343,7 @@ defmodule Styx.TelemetryTest do
     test "disabling encoding on the default logger", %{name: name} do
       logged =
         capture_log(fn ->
-          start_supervised_oban!(name: name, stager: [interval: 5], queues: [alpha: 3])
+          start_supervised_styx!(name: name, stager: [interval: 5], queues: [alpha: 3])
 
           insert!(name, [ref: 1, action: "OK"], queue: :alpha)
 

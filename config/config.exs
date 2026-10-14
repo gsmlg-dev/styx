@@ -21,10 +21,10 @@ config :styx, Styx.Test.Repo,
   priv: "test/support/postgres",
   show_sensitive_data_on_connection_error: true,
   stacktrace: true,
-  url: System.get_env("POSTGRES_URL") || "postgres://localhost:5432/oban_test"
+  url: System.get_env("POSTGRES_URL") || "postgres://localhost:5432/styx_test"
 
 config :styx, Styx.Test.LiteRepo,
-  database: "priv/oban.db",
+  database: "priv/styx.db",
   priv: "test/support/sqlite",
   stacktrace: true,
   temp_store: :memory
@@ -35,7 +35,7 @@ config :styx, Styx.Test.DolphinRepo,
   priv: "test/support/myxql",
   show_sensitive_data_on_connection_error: true,
   stacktrace: true,
-  url: System.get_env("MYSQL_URL") || "mysql://root@localhost:3306/oban_test"
+  url: System.get_env("MYSQL_URL") || "mysql://root@localhost:3306/styx_test"
 
 config :styx,
   ecto_repos: [Styx.Test.Repo, Styx.Test.LiteRepo, Styx.Test.DolphinRepo]

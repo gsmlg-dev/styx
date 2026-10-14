@@ -402,9 +402,6 @@ defmodule Styx do
     When the `Styx.Engines.Lite` engine is used the `:notifier` and `:peer` are automatically set
     to `PG` and `isolated` mode, respectively.
 
-    Additional engines, such as Oban Pro's `SmartEngine` with advanced functionality for Postgres,
-    are also available as an add-on.
-
     Defaults to the `Basic` engine for Postgres.
 
   * `:name` — used for supervisor registration, it must be unique across an entire VM instance.
@@ -452,10 +449,10 @@ defmodule Styx do
 
     Using an empty list or `false` prevents any queues from starting on init.
 
-    A `{module, options}` tuple hands queue management to an alternative implementation, such as an
-    Oban Pro plugin, which is started as a plugin and controls which queues run:
+    A `{module, options}` tuple hands queue management to an alternative implementation, which is
+    started as a plugin and controls which queues run:
 
-        queues: {Oban.Pro.Queues, queues: [default: 10]}
+        queues: {MyApp.CustomQueues, queues: [default: 10]}
 
     A static keyword list is equivalent to the built-in `Styx.Queues`, which starts the listed
     queues on init and leaves them running. Either form runs regardless of the `:plugins` setting,
@@ -484,11 +481,11 @@ defmodule Styx do
       pruner: [max_age: {1, :day}]
 
   Each key also accepts a module to use a specific implementation with default options, or a
-  `{module, options}` tuple to pass it options. For example, to run the default reindexer, or an
-  Oban Pro Cron module instead:
+  `{module, options}` tuple to pass it options. For example, to run the default reindexer, or a
+  custom Cron module instead:
 
       reindexer: Styx.Reindexer,
-      cron: {Oban.Pro.Cron, [crontab: ...]}
+      cron: {MyApp.CustomCron, [crontab: ...]}
 
   Setting `plugins: false` disables plugins configured through service keys as well, without any
   need to disable them individually. The `:queues` option accepts the same tuple form, but it isn't
@@ -815,10 +812,7 @@ defmodule Styx do
 
   > #### 🌟 Unique Jobs and Batching {: .tip}
   >
-  > Only the [Smart Engine](https://oban.pro/docs/pro/Oban.Pro.Engines.Smart.html) in [Styx
-  > Pro](https://oban.pro) supports bulk unique jobs, automatic insert batching, and minimizes
-  > parameters sent over the wire. With the basic engine, you must use `insert/3` to insert unique
-  > jobs one at a time.
+  > With the basic engine, you must use `insert/3` to insert unique jobs one at a time.
 
   ## Options
 

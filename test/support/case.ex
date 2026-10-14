@@ -63,8 +63,6 @@ defmodule Styx.Case do
     name
   end
 
-  defdelegate start_supervised_oban!(opts), to: __MODULE__, as: :start_supervised_styx!
-
   def with_backoff(opts \\ [], fun) do
     total = Keyword.get(opts, :total, 100)
     sleep = Keyword.get(opts, :sleep, 10)
@@ -101,10 +99,10 @@ defmodule Styx.Case do
     |> Repo.insert!()
   end
 
-  def insert!(oban, args, opts) do
+  def insert!(styx, args, opts) do
     changeset = build(args, opts)
 
-    Styx.insert!(oban, changeset)
+    Styx.insert!(styx, changeset)
   end
 
   # Pruning test helpers

@@ -32,7 +32,7 @@ defmodule Styx.MixProject do
       docs: [
         main: "Styx",
         api_reference: false,
-        logo: "assets/oban-logo.svg",
+        logo: "assets/styx-logo.svg",
         assets: %{"assets" => "assets"},
         source_ref: "v#{@version}",
         source_url: @source_url,
@@ -92,17 +92,6 @@ defmodule Styx.MixProject do
       "guides/advanced/scaling.md",
       "guides/advanced/troubleshooting.md",
 
-      # Upgrading
-      "guides/upgrading/v2.0.md",
-      "guides/upgrading/v2.6.md",
-      "guides/upgrading/v2.11.md",
-      "guides/upgrading/v2.12.md",
-      "guides/upgrading/v2.14.md",
-      "guides/upgrading/v2.17.md",
-      "guides/upgrading/v2.20.md",
-      "guides/upgrading/v2.21.md",
-      "guides/upgrading/v2.24.md",
-
       # Recipes
       "guides/recipes/recursive-jobs.md",
       "guides/recipes/reliable-scheduling.md",
@@ -126,8 +115,7 @@ defmodule Styx.MixProject do
       Learning: ~r{guides/learning/[^\/]+\.md},
       Advanced: ~r{guides/advanced/[^\/]+\.md},
       Recipes: ~r{guides/recipes/.?},
-      Testing: ~r{guides/testing/.?},
-      Upgrading: ~r{guides/upgrading/.*}
+      Testing: ~r{guides/testing/.?}
     ]
   end
 

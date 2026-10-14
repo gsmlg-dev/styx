@@ -4,7 +4,7 @@ defmodule Styx.Engines.InlineTest do
   alias Ecto.Multi
 
   test "executing a single inserted job inline" do
-    name = start_supervised_oban!(testing: :inline)
+    name = start_supervised_styx!(testing: :inline)
 
     assert {:ok, job_1} = Styx.insert(name, Worker.new(%{ref: 1, action: "OK"}))
     assert {:ok, job_2} = Styx.insert(name, Worker.new(%{ref: 2, action: "ERROR"}))
@@ -26,7 +26,7 @@ defmodule Styx.Engines.InlineTest do
   end
 
   test "executing a job with errors raises" do
-    name = start_supervised_oban!(testing: :inline)
+    name = start_supervised_styx!(testing: :inline)
 
     assert_raise RuntimeError, fn ->
       Styx.insert(name, Worker.new(%{ref: 1, action: "FAIL"}))
@@ -38,14 +38,14 @@ defmodule Styx.Engines.InlineTest do
   end
 
   test "executing unscheduled or unavailable jobs skips execution" do
-    name = start_supervised_oban!(testing: :inline)
+    name = start_supervised_styx!(testing: :inline)
 
     assert {:ok, _} = Styx.insert(name, Worker.new(%{action: "FAIL"}, state: "cancelled"))
     assert {:ok, _} = Styx.insert(name, Worker.new(%{action: "FAIL"}, state: "completed"))
   end
 
   test "executing multiple jobs inserted from a stream" do
-    name = start_supervised_oban!(testing: :inline)
+    name = start_supervised_styx!(testing: :inline)
 
     stream = Stream.map(1..2, &Worker.new(%{ref: &1, action: "OK"}))
 
@@ -56,7 +56,7 @@ defmodule Styx.Engines.InlineTest do
   end
 
   test "executing single jobs inserted within a multi" do
-    name = start_supervised_oban!(testing: :inline)
+    name = start_supervised_styx!(testing: :inline)
 
     multi = Multi.new()
     multi = Styx.insert(name, multi, :job_1, Worker.new(%{ref: 1, action: "OK"}))
@@ -69,7 +69,7 @@ defmodule Styx.Engines.InlineTest do
   end
 
   test "executing multiple jobs inserted inline" do
-    name = start_supervised_oban!(testing: :inline)
+    name = start_supervised_styx!(testing: :inline)
 
     jobs_1 = for ref <- 1..2, do: Worker.new(%{ref: ref, action: "OK"})
     jobs_2 = for ref <- 3..4, do: Worker.new(%{ref: ref, action: "OK"})
@@ -82,7 +82,7 @@ defmodule Styx.Engines.InlineTest do
   end
 
   test "executing multiple jobs inserted within a multi" do
-    name = start_supervised_oban!(testing: :inline)
+    name = start_supervised_styx!(testing: :inline)
 
     jobs_1 = for ref <- 1..2, do: Worker.new(%{ref: ref, action: "OK"})
     jobs_2 = for ref <- 3..4, do: Worker.new(%{ref: ref, action: "OK"})

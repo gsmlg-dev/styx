@@ -128,15 +128,15 @@ above:
 ```elixir
 alias Styx.Registry
 
-def pause(oban_name \\ Styx) do
-  oban_name
+def pause(styx_name \\ Styx) do
+  styx_name
   |> Registry.whereis({:plugin, __MODULE__})
   |> GenServer.call(:pause)
 end
 ```
 
-The function accepts an `oban_name` argument with a default of `Styx`, which is
-the default name for an Styx supervision tree. It then calls `whereis/2` with a
+The function accepts a `styx_name` argument with a default of `Styx`, which is
+the default name for a Styx supervision tree. It then calls `whereis/2` with a
 `{:plugin, plugin_name}` tuple and uses the returned `pid` to call the plugin
 process.
 
@@ -147,7 +147,7 @@ MyApp.Plugins.Breakdown.pause()
 
 # or
 
-MyApp.Plugins.Breakdown.pause(MyApp.OtherOban)
+MyApp.Plugins.Breakdown.pause(MyApp.OtherStyx)
 ```
 
 ## Caveats

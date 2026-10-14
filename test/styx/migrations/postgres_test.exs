@@ -47,7 +47,7 @@ defmodule Styx.Migrations.PostgresTest do
 
   test "verifying that any migrations have ran" do
     assert_raise RuntimeError, ~r/migrations have not been run/, fn ->
-      start_supervised_oban!(repo: Repo, testing: :manual, prefix: "does_not_exist")
+      start_supervised_styx!(repo: Repo, testing: :manual, prefix: "does_not_exist")
     end
   end
 
@@ -57,7 +57,7 @@ defmodule Styx.Migrations.PostgresTest do
     assert :ok = Ecto.Migrator.up(UnboxedRepo, @base_version, StepMigration)
 
     assert_raise RuntimeError, ~r/migrations are outdated/, fn ->
-      start_supervised_oban!(repo: UnboxedRepo, testing: :manual, prefix: "migrating")
+      start_supervised_styx!(repo: UnboxedRepo, testing: :manual, prefix: "migrating")
     end
   after
     clear_migrated()
@@ -125,7 +125,7 @@ defmodule Styx.Migrations.PostgresTest do
     UnboxedRepo.query!("COMMENT ON TABLE migrating.oban_jobs IS '∞'")
 
     assert migrated_version() == :infinity
-    assert start_supervised_oban!(repo: UnboxedRepo, testing: :manual, prefix: "migrating")
+    assert start_supervised_styx!(repo: UnboxedRepo, testing: :manual, prefix: "migrating")
   after
     clear_migrated()
   end

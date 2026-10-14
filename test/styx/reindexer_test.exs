@@ -53,7 +53,7 @@ defmodule Styx.ReindexerTest do
     end
 
     test "reindexing with an unknown column causes an exception" do
-      name = start_supervised_oban!(plugins: [{Reindexer, indexes: ["a"], schedule: "* * * * *"}])
+      name = start_supervised_styx!(plugins: [{Reindexer, indexes: ["a"], schedule: "* * * * *"}])
 
       name
       |> Registry.whereis({:plugin, Reindexer})
@@ -65,7 +65,7 @@ defmodule Styx.ReindexerTest do
     end
 
     test "reindexing according to the provided schedule" do
-      name = start_supervised_oban!(plugins: [Reindexer])
+      name = start_supervised_styx!(plugins: [Reindexer])
 
       name
       |> Registry.whereis({:plugin, Reindexer})
@@ -91,7 +91,7 @@ defmodule Styx.ReindexerTest do
         "UPDATE pg_index SET indisvalid = false WHERE indexrelid = 'public.#{index_name}'::regclass"
       )
 
-      name = start_supervised_oban!(repo: UnboxedRepo, plugins: [Reindexer])
+      name = start_supervised_styx!(repo: UnboxedRepo, plugins: [Reindexer])
 
       name
       |> Registry.whereis({:plugin, Reindexer})
@@ -108,7 +108,7 @@ defmodule Styx.ReindexerTest do
     test "reindexing every index despite individual failures" do
       indexes = ~w(oban_jobs_missing_index_a oban_jobs_missing_index_b)
 
-      name = start_supervised_oban!(plugins: [{Reindexer, indexes: indexes}])
+      name = start_supervised_styx!(plugins: [{Reindexer, indexes: indexes}])
 
       name
       |> Registry.whereis({:plugin, Reindexer})

@@ -6,13 +6,6 @@ defmodule Styx.Pruner do
   is recommended for all production applications. See also the
   [*Operational Maintenance* guide](operational_maintenance.html).
 
-  > #### 🌟 Oban Pro's Pruner {: .info}
-  >
-  > This plugin is limited to a fixed interval and a single `max_age` check for all jobs. To prune
-  > on a cron-style schedule, retain jobs by a limit or age, provide override rules for select
-  > queues/workers/states, and automatically archive select jobs, see
-  > [`Oban.Pro.Pruner`](https://oban.pro/docs/pro/Oban.Pro.Pruner.html).
-
   ## Using the Plugin
 
   The following example demonstrates using the plugin without any configuration, which will prune

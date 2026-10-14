@@ -38,17 +38,16 @@ config :my_app, Styx,
     default: 10,
     mailers: [limit: 20, dispatch_cooldown: 50],
     events: [limit: 50, paused: true],
-    media: [limit: 1, global_limit: 10]
+    media: 5
   ],
   repo: MyApp.Repo
 ```
 
 This expanded configuration demonstrates several advanced options:
 
-* The `mailers`  queue has a dispatch cooldown of 50ms between job fetching
+* The `mailers` queue has a dispatch cooldown of 50ms between job fetching
 * The `events` queue starts in a paused state, which means it won't process anything until
   `Styx.resume_queue/2` is called to start it
-* The `media` queue uses a global limit (an Oban Pro feature)
 
 ### Paused Queues
 
@@ -91,8 +90,7 @@ queue. However, consider these important guidelines:
 * Queue limits are **local** (per-node), not global (per-cluster). For example, running a queue
   with a local limit of `2` on three separate nodes is effectively a global limit of *six
   concurrent jobs*. If you require a global limit, you must restrict the number of nodes running a
-  particular queue or consider Oban Pro's [Smart Engine][smart], which can manage global
-  concurrency *automatically*!
+  particular queue.
 
 #### Queue Planning
 
@@ -117,4 +115,3 @@ queue. However, consider these important guidelines:
 
 [ffmpeg]: https://www.ffmpeg.org
 [imagemagick]: https://imagemagick.org/index.php
-[smart]: https://oban.pro/docs/pro/Oban.Pro.Engines.Smart.html

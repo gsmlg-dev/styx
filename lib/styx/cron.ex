@@ -5,12 +5,6 @@ defmodule Styx.Cron do
   This plugin registers workers a cron-like schedule and enqueues jobs automatically. To know
   more about periodic jobs in Styx, see the [*Periodic Jobs* guide][perjob].
 
-  > #### 🌟 Oban Pro's Cron {: .info}
-  >
-  > This plugin only loads the crontab statically, at boot time. To configure cron scheduling at
-  > runtime, globally, across an entire cluster with scheduling guarantees and management tools,
-  > see [`Oban.Pro.Cron`](https://oban.pro/docs/pro/Oban.Pro.Cron.html).
-
   ## Usage
 
   Periodic jobs are declared as a list of `{cron, worker}` or `{cron, worker, options}` tuples:

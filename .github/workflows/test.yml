@@ -25,8 +25,8 @@ jobs:
     name: test (${{ matrix.pair.elixir }}, ${{ matrix.pair.otp }}, mysql ${{ matrix.pair.mysql }}, pg ${{ matrix.pair.postgres }})
     env:
       MIX_ENV: test
-      MYSQL_URL: mysql://root@localhost:3306/oban_test
-      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/oban_test
+      MYSQL_URL: mysql://root@localhost:3306/styx_test
+      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/styx_test
     strategy:
       fail-fast: false
       matrix:
@@ -50,7 +50,7 @@ jobs:
       postgres:
         image: postgres:${{matrix.pair.postgres}}
         env:
-          POSTGRES_DB: oban_test
+          POSTGRES_DB: styx_test
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
         options: >-

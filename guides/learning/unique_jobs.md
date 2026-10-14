@@ -72,11 +72,6 @@ use Styx.Worker,
 > Styx strives for uniqueness of jobs through transactional locks and database queries. Uniqueness
 > *does not* rely on unique constraints in the database, which leaves it prone to race conditions
 > in some circumstances.
->
-> 🌟 [Pro's Smart Engine][pro-smart-engine] *does* rely on unique constraints and provides strong
-> uniqueness guarantees.
-
-[pro-smart-engine]: https://oban.pro/docs/pro/Oban.Pro.Engines.Smart.html
 
 ## Uniqueness vs Concurrency
 

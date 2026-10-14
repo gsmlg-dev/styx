@@ -5,7 +5,7 @@ defmodule Styx.Plugins.RepeaterTest do
 
   test "ignoring plugin startup" do
     assert capture_log(fn ->
-             start_supervised_oban!(plugins: [Styx.Plugins.Repeater])
+             start_supervised_styx!(plugins: [Styx.Plugins.Repeater])
            end) =~ "Repeater is deprecated"
   end
 end

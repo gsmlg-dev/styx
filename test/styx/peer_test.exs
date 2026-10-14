@@ -5,13 +5,13 @@ defmodule Styx.PeerTest do
 
   describe "configuration" do
     test "leadership is disabled when peer is false" do
-      name = start_supervised_oban!(peer: false)
+      name = start_supervised_styx!(peer: false)
 
       refute Peer.leader?(name)
     end
 
     test "leadership is disabled along with plugins" do
-      name = start_supervised_oban!(peer: nil, plugins: false)
+      name = start_supervised_styx!(peer: nil, plugins: false)
 
       refute Peer.leader?(name)
     end
@@ -21,7 +21,7 @@ defmodule Styx.PeerTest do
     @tag :dolphin
     test "maintaining leadership using the Dolphin engine" do
       name =
-        start_supervised_oban!(
+        start_supervised_styx!(
           engine: Styx.Engines.Dolphin,
           node: "web.1",
           peer: Styx.Peers.Database,
@@ -45,19 +45,19 @@ defmodule Styx.PeerTest do
     describe "using #{peer}" do
       test "forwarding opts to peer instances" do
         assert_raise RuntimeError, ~r/key :unknown not found/, fn ->
-          start_supervised_oban!(peer: {@peer, unknown: :option})
+          start_supervised_styx!(peer: {@peer, unknown: :option})
         end
       end
 
       test "a single node acquires leadership" do
-        name = start_supervised_oban!(peer: @peer, node: "web.1")
+        name = start_supervised_styx!(peer: @peer, node: "web.1")
 
         assert Peer.leader?(name)
         assert "web.1" == Peer.get_leader(name)
       end
 
       test "leadership transfers to another peer when the leader exits" do
-        name = start_supervised_oban!(plugins: false)
+        name = start_supervised_styx!(plugins: false)
         conf = %{Styx.config(name) | peer: {@peer, []}}
 
         peer_a = start_supervised!({Peer, conf: conf, name: Peer.A})
@@ -77,7 +77,7 @@ defmodule Styx.PeerTest do
 
       @tag :capture_log
       test "leadership checks return false after a timeout" do
-        name = start_supervised_oban!(peer: @peer)
+        name = start_supervised_styx!(peer: @peer)
 
         assert Peer.leader?(name)
 

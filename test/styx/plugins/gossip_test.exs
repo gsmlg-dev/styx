@@ -5,7 +5,7 @@ defmodule Styx.Plugins.GossipTest do
 
   test "ignoring plugin startup" do
     assert capture_log(fn ->
-             start_supervised_oban!(plugins: [Styx.Plugins.Gossip])
+             start_supervised_styx!(plugins: [Styx.Plugins.Gossip])
            end) =~ "Gossip is deprecated"
   end
 end

@@ -195,7 +195,7 @@ defmodule Styx.Config do
 
   defp inline_testing?(pid, default) do
     case Process.info(pid, :dictionary) do
-      {:dictionary, dictionary} -> Keyword.get(dictionary, :oban_testing, default) == :inline
+      {:dictionary, dictionary} -> Keyword.get(dictionary, :styx_testing, default) == :inline
       _ -> false
     end
   end

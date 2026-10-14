@@ -53,7 +53,7 @@ an event handler module that integrates with [Honeybadger][honeybadger] to repor
 defmodule MyApp.ErrorReporter do
   def attach do
     :telemetry.attach(
-      "oban-errors",
+      "styx-errors",
       [:styx, :job, :exception],
       &__MODULE__.handle_event/4,
       []

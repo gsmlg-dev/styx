@@ -11,12 +11,6 @@ defmodule Styx.Engine do
   2. `Inline` — Designed specifically for testing, it executes jobs immediately, in-memory, as
      they are inserted.
   3. `Lite` - The engine for running Styx using SQLite3.
-
-  > #### 🌟 SmartEngine {: .info}
-  >
-  > The Basic engine lacks advanced functionality such as global limits, rate limits, and
-  > unique bulk insert. For those features and more, see the [`Smart` engine in Styx
-  > Pro](https://oban.pro/docs/pro/Oban.Pro.Engines.Smart.html).
   """
 
   alias Ecto.{Changeset, Multi}

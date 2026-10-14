@@ -19,7 +19,7 @@ You can use `validate/1` to verify dynamic configuration, e.g. options specified
 in `runtime.exs`:
 
 ```elixir
-test "production oban config is valid" do
+test "production styx config is valid" do
   config =
     "config/config.exs"
     |> Config.Reader.read!(env: :prod)
@@ -39,8 +39,7 @@ you'll see the test fail with an error like this:
 ## Testing Dynamic Plugin Config
 
 Validation is especially helpful for plugins that have complex configuration,
-e.g. `Cron` or the `Dynamic*` plugins from Oban Pro. As of Styx v2.12.0 all
-plugins implement the `c:Styx.Plugin.validate/1` callback and we can test them
+e.g. `Cron`. All plugins implement the `c:Styx.Plugin.validate/1` callback and we can test them
 in isolation as well as through the top level config.
 
 Suppose you have a helper function that returns a crontab config at runtime:

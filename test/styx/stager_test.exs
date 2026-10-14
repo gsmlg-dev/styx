@@ -9,7 +9,7 @@ defmodule Styx.StagerTest do
     job_2 = insert!(%{}, state: "scheduled", scheduled_at: seconds_from_now(10))
     job_3 = insert!(%{}, state: "retryable")
 
-    start_supervised_oban!(stager: [interval: 5], testing: :disabled)
+    start_supervised_styx!(stager: [interval: 5], testing: :disabled)
 
     with_backoff(fn ->
       assert %{state: "available"} = Repo.reload(job_1)
@@ -19,7 +19,7 @@ defmodule Styx.StagerTest do
   end
 
   test "emitting telemetry data for staged jobs" do
-    name = start_supervised_oban!(stager: [interval: 5], testing: :disabled)
+    name = start_supervised_styx!(stager: [interval: 5], testing: :disabled)
 
     TelemetryHandler.attach_events(styx_name: name)
 
@@ -32,7 +32,7 @@ defmodule Styx.StagerTest do
     :telemetry_test.attach_event_handlers(self(), [[:styx, :stager, :switch]])
 
     [stager: [interval: 5], notifier: {Styx.Notifiers.Isolated, connected: false}]
-    |> start_supervised_oban!()
+    |> start_supervised_styx!()
     |> ping_sonar()
 
     assert_receive {[:styx, :stager, :switch], _, %{}, %{mode: :local}}
@@ -48,7 +48,7 @@ defmodule Styx.StagerTest do
     ]
 
     opts
-    |> start_supervised_oban!()
+    |> start_supervised_styx!()
     |> ping_sonar()
 
     assert_receive {[:styx, :stager, :switch], _, %{}, %{mode: :local}}
@@ -56,7 +56,7 @@ defmodule Styx.StagerTest do
 
   test "dispatching directly to registered producers in local mode" do
     name =
-      start_supervised_oban!(
+      start_supervised_styx!(
         stager: [interval: 5],
         notifier: Styx.Notifiers.Isolated,
         peer: {Styx.Peers.Isolated, leader?: false}

@@ -29,7 +29,7 @@ config :my_app, Styx,
   queues: [default: 15, media: 10, events: 25]
 ```
 
-We will use an `OBAN_QUEUES` environment variable to override the queues at
+We will use a `STYX_QUEUES` environment variable to override the queues at
 runtime. For illustration purposes the queue parsing all happens within the
 application module, but it would work equally well in `releases.exs` (or `runtime.exs`).
 
@@ -43,14 +43,14 @@ defmodule MyApp.Application do
     children = [
       MyApp.Repo,
       MyApp.Endpoint,
-      {Styx, oban_opts()}
+      {Styx, styx_opts()}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
   end
 
-  defp oban_opts do
-    env_queues = System.get_env("OBAN_QUEUES")
+  defp styx_opts do
+    env_queues = System.get_env("STYX_QUEUES")
 
     :my_app
     |> Application.get_env(Styx)
@@ -75,7 +75,7 @@ end
 The `queues` function's first three clauses ensure that we can fall back to the
 queues specified in our configuration (or `false`, for testing). The fourth
 clause is much more involved, and that is where the environment parsing happens.
-It expects the `OBAN_QUEUES` value to be a string formatted as `queue,limit`
+It expects the `STYX_QUEUES` value to be a string formatted as `queue,limit`
 pairs and separated by spaces. For example, to run only the `default` and
 `media` queues with a limit of 5 and 10 respectively, you would pass the string
 `default,5 media,10`.
@@ -94,16 +94,16 @@ In development (or when using `mix` rather than releases) we can specify the
 environment variable inline:
 
 ```bash
-OBAN_QUEUES="default,10 media,5" mix phx.server # default: 10, media: 5
+STYX_QUEUES="default,10 media,5" mix phx.server # default: 10, media: 5
 ```
 
 We can also explicitly opt in to running all of the configured queues:
 
 ```bash
-OBAN_QUEUES="*" mix phx.server # default: 15, media: 10, events: 25
+STYX_QUEUES="*" mix phx.server # default: 15, media: 10, events: 25
 ```
 
-Finally, without `OBAN_QUEUES` set at all it will implicitly fall back to the
+Finally, without `STYX_QUEUES` set at all it will implicitly fall back to the
 configured queues:
 
 ```bash

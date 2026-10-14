@@ -15,11 +15,11 @@ You can create an [Styx **facade**](`Styx.__using__/1`) by defining a module tha
 Styx`:
 
 ```elixir
-defmodule MyApp.ObanA do
+defmodule MyApp.StyxA do
   use Styx, otp_app: :my_app
 end
 
-defmodule MyApp.ObanB do
+defmodule MyApp.StyxB do
   use Styx, otp_app: :my_app
 end
 ```
@@ -27,8 +27,8 @@ end
 Configure facades through the application environment, for example in `config/config.exs`:
 
 ```elixir
-config :my_app, MyApp.ObanA, repo: MyAppo.Repo, prefix: "special"
-config :my_app, MyApp.ObanB, repo: MyAppo.Repo, prefix: "private"
+config :my_app, MyApp.StyxA, repo: MyAppo.Repo, prefix: "special"
+config :my_app, MyApp.StyxB, repo: MyAppo.Repo, prefix: "private"
 ```
 
 You can then start these facades in your application's supervision tree:
@@ -38,8 +38,8 @@ You can then start these facades in your application's supervision tree:
 def start(_type, _args) do
   children = [
     MyApp.Repo,
-    MyApp.ObanA,
-    MyApp.ObanB
+    MyApp.StyxA,
+    MyApp.StyxB
   ]
 
   Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
@@ -50,7 +50,7 @@ Styx facades define all the functions that the `Styx` module defines, so use the
 of `Styx`:
 
 ```elixir
-MyApp.ObanA.insert(MyApp.Worker.new(%{}))
+MyApp.StyxA.insert(MyApp.Worker.new(%{}))
 ```
 
 ### Isolated Instances Via Names
@@ -62,9 +62,9 @@ Here we configure our application to start three Styx supervisors using the `"pu
 def start(_type, _args) do
   children = [
     MyApp.Repo,
-    {Styx, name: ObanA, repo: MyApp.Repo},
-    {Styx, name: ObanB, repo: MyApp.Repo, prefix: "special"},
-    {Styx, name: ObanC, repo: MyApp.Repo, prefix: "private"}
+    {Styx, name: StyxA, repo: MyApp.Repo},
+    {Styx, name: StyxB, repo: MyApp.Repo, prefix: "special"},
+    {Styx, name: StyxC, repo: MyApp.Repo, prefix: "private"}
   ]
 
   Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
@@ -80,11 +80,11 @@ is why this works if you don't explicitly start an Styx supervisor in your appli
 Styx.insert(MyApp.Worker.new(%{}))
 ```
 
-In the example above, with `ObanA`/`ObanB`/`ObanC`, you can specify which Styx instance you want
+In the example above, with `StyxA`/`StyxB`/`StyxC`, you can specify which Styx instance you want
 to use for scheduling by passing its name in:
 
 ```elixir
-Styx.insert(ObanB, MyApp.Worker.new(%{}))
+Styx.insert(StyxB, MyApp.Worker.new(%{}))
 ```
 
 ### Umbrella Apps
@@ -173,7 +173,7 @@ make this work, you need to run a separate Styx instance for each dynamic repo i
 it's worth bundling each Styx and repo instance under the same supervisor:
 
 ```elixir
-def start_repo_and_oban(instance_id) do
+def start_repo_and_styx(instance_id) do
   children = [
     {MyDynamicRepo, name: nil, url: repo_url(instance_id)},
     {Styx, name: instance_id, repo: {MyDynamicRepo, dynamic_repo: fn -> repo_pid(instance_id) end}}
@@ -194,7 +194,7 @@ notifier with the correct credentials on initialization, allowing jobs to proces
 ### Ecto Multi-tenancy
 
 If you followed the Ecto guide on setting up multi-tenancy with foreign keys, you need to add an
-exception for queries originating from Styx. All of Styx's queries have the custom option `oban:
+exception for queries originating from Styx. All of Styx's queries have the custom option `styx:
 true` to help you identify them in `prepare_query/3` or other instrumentation:
 
 ```elixir

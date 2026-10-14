@@ -21,7 +21,7 @@ the `Styx.Telemetry` module.
 Here is an example of an unstructured log handler:
 
 ```elixir
-defmodule MyApp.ObanLogger do
+defmodule MyApp.StyxLogger do
   require Logger
 
   def handle_event([:styx, :job, :start], measure, meta, _) do
@@ -45,7 +45,7 @@ def start(_type, _args) do
     [:styx, :job, :exception]
   ]
 
-  :telemetry.attach_many("oban-logger", events, &MyApp.ObanLogger.handle_event/4, [])
+  :telemetry.attach_many("styx-logger", events, &MyApp.StyxLogger.handle_event/4, [])
 
   Supervisor.start_link(...)
 end

@@ -6,8 +6,8 @@ defmodule Styx.Notifiers.PGTest do
 
   describe "namespacing" do
     test "namespacing by configured prefix without an override" do
-      name_1 = start_supervised_oban!(notifier: PG, prefix: "pg_test")
-      name_2 = start_supervised_oban!(notifier: PG, prefix: "pg_test")
+      name_1 = start_supervised_styx!(notifier: PG, prefix: "pg_test")
+      name_2 = start_supervised_styx!(notifier: PG, prefix: "pg_test")
 
       await_joined("pg_test")
 
@@ -18,8 +18,8 @@ defmodule Styx.Notifiers.PGTest do
     end
 
     test "overriding the default namespace" do
-      name_1 = start_supervised_oban!(notifier: {PG, namespace: :pg_test}, prefix: "pg_a")
-      name_2 = start_supervised_oban!(notifier: {PG, namespace: :pg_test}, prefix: "pg_b")
+      name_1 = start_supervised_styx!(notifier: {PG, namespace: :pg_test}, prefix: "pg_a")
+      name_2 = start_supervised_styx!(notifier: {PG, namespace: :pg_test}, prefix: "pg_b")
 
       await_joined(:pg_test)
 

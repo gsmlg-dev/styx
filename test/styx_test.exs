@@ -1,4 +1,4 @@
-defmodule ObanTest do
+defmodule StyxTest do
   use Styx.Case, async: true
 
   alias Styx.Registry
@@ -34,7 +34,7 @@ defmodule ObanTest do
       %Job{id: id_2} = insert!(ref: 2, sleep: 5000)
 
       name =
-        start_supervised_oban!(
+        start_supervised_styx!(
           queues: [alpha: 1],
           shutdown_grace_period: 10,
           stager: [interval: 5]
@@ -56,7 +56,7 @@ defmodule ObanTest do
       insert!(ref: 1, sleep: 50)
 
       name =
-        start_supervised_oban!(
+        start_supervised_styx!(
           queues: [alpha: 1],
           shutdown_grace_period: 10,
           stager: [interval: 5]
@@ -77,7 +77,7 @@ defmodule ObanTest do
       insert!([ref: 3, sleep: 500], queue: :omega)
 
       name =
-        start_supervised_oban!(
+        start_supervised_styx!(
           queues: [alpha: 1, omega: 1],
           shutdown_grace_period: 10,
           stager: [interval: 5]
@@ -97,7 +97,7 @@ defmodule ObanTest do
   describe "check_queue/2" do
     test "checking on queue state at runtime" do
       name =
-        start_supervised_oban!(
+        start_supervised_styx!(
           queues: [alpha: 1, gamma: 2, delta: [limit: 2, paused: true]],
           stager: [interval: 5]
         )
@@ -118,13 +118,13 @@ defmodule ObanTest do
     end
 
     test "checking state for a queue that isn't running locally" do
-      name = start_supervised_oban!(queues: [])
+      name = start_supervised_styx!(queues: [])
 
       refute Styx.check_queue(name, queue: :default)
     end
 
     test "checking with invalid options or invalid queue name" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       assert_raise ArgumentError, fn -> Styx.check_queue(name, wrong: nil) end
       assert_raise ArgumentError, fn -> Styx.check_queue(name, queue: nil) end
@@ -135,12 +135,12 @@ defmodule ObanTest do
     test "checking all queues without any running" do
       assert [] =
                [queues: []]
-               |> start_supervised_oban!()
+               |> start_supervised_styx!()
                |> Styx.check_all_queues()
     end
 
     test "checking on the state of all running queues" do
-      name = start_supervised_oban!(queues: [alpha: 1, gamma: 2, delta: 3])
+      name = start_supervised_styx!(queues: [alpha: 1, gamma: 2, delta: 3])
 
       assert [alpha_check, delta_check, gamma_check] = Styx.check_all_queues(name)
 
@@ -151,7 +151,7 @@ defmodule ObanTest do
   end
 
   describe "drain_queue/2" do
-    setup :start_supervised_oban
+    setup :start_supervised_styx
 
     test "all jobs in a queue can be drained and executed synchronously", %{name: name} do
       insert!(ref: 1, action: "OK")
@@ -238,7 +238,7 @@ defmodule ObanTest do
 
   describe "pause_queue/2 and resume_queue/2" do
     test "validating options" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       assert_invalid_opts(name, :pause_queue, queue: nil)
       assert_invalid_opts(name, :pause_queue, local_only: -1)
@@ -247,7 +247,7 @@ defmodule ObanTest do
     end
 
     test "pausing and resuming individual queues" do
-      name = start_supervised_oban!(queues: [alpha: 5])
+      name = start_supervised_styx!(queues: [alpha: 5])
 
       assert :ok = Styx.pause_queue(name, queue: :alpha)
 
@@ -263,8 +263,8 @@ defmodule ObanTest do
     end
 
     test "pausing queues only on the local node" do
-      name_1 = start_supervised_oban!(stager: [interval: 5], queues: [alpha: 1])
-      name_2 = start_supervised_oban!(stager: [interval: 5], queues: [alpha: 1])
+      name_1 = start_supervised_styx!(stager: [interval: 5], queues: [alpha: 1])
+      name_2 = start_supervised_styx!(stager: [interval: 5], queues: [alpha: 1])
 
       assert :ok = Styx.pause_queue(name_2, queue: :alpha, local_only: true)
 
@@ -275,7 +275,7 @@ defmodule ObanTest do
     end
 
     test "pausing queues on a specific node" do
-      name = start_supervised_oban!(node: "web.1", queues: [alpha: 1])
+      name = start_supervised_styx!(node: "web.1", queues: [alpha: 1])
 
       assert :ok = Styx.pause_queue(name, queue: :alpha, node: "web.2")
 
@@ -293,8 +293,8 @@ defmodule ObanTest do
     test "resuming queues only on the local node" do
       opts = [notifier: Styx.Notifiers.PG, stager: [interval: 5], queues: [alpha: 1]]
 
-      name_1 = start_supervised_oban!(opts)
-      name_2 = start_supervised_oban!(opts)
+      name_1 = start_supervised_styx!(opts)
+      name_2 = start_supervised_styx!(opts)
 
       assert :ok = Styx.pause_queue(name_1, queue: :alpha)
 
@@ -312,7 +312,7 @@ defmodule ObanTest do
     end
 
     test "resuming queues on a specific node" do
-      name = start_supervised_oban!(node: "web.1", queues: [alpha: 1])
+      name = start_supervised_styx!(node: "web.1", queues: [alpha: 1])
 
       Styx.pause_queue(name, queue: :alpha)
 
@@ -334,7 +334,7 @@ defmodule ObanTest do
     end
 
     test "trying to pause queues that don't exist" do
-      name = start_supervised_oban!(queues: [])
+      name = start_supervised_styx!(queues: [])
 
       assert :ok = Styx.pause_queue(name, queue: :alpha)
 
@@ -344,7 +344,7 @@ defmodule ObanTest do
     end
 
     test "trying to resume queues that don't exist" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       assert :ok = Styx.resume_queue(name, queue: :alpha)
 
@@ -356,7 +356,7 @@ defmodule ObanTest do
 
   describe "pause_all_queues/2 and resume_all_queues/2" do
     test "pausing and resuming all queues" do
-      name = start_supervised_oban!(queues: [alpha: 1, gamma: 1, delta: 1])
+      name = start_supervised_styx!(queues: [alpha: 1, gamma: 1, delta: 1])
 
       assert :ok = Styx.pause_all_queues(name)
 
@@ -378,8 +378,8 @@ defmodule ObanTest do
     test "pausing and resuming all local queues" do
       opts = [queues: [alpha: 1, gamma: 1]]
 
-      name_1 = start_supervised_oban!(opts)
-      name_2 = start_supervised_oban!(opts)
+      name_1 = start_supervised_styx!(opts)
+      name_2 = start_supervised_styx!(opts)
 
       assert :ok = Styx.pause_all_queues(name_1, local_only: true)
 
@@ -406,7 +406,7 @@ defmodule ObanTest do
 
   describe "scale_queue/2" do
     test "validating options" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       assert_invalid_opts(name, :scale_queue, [])
       assert_invalid_opts(name, :scale_queue, queue: nil)
@@ -415,7 +415,7 @@ defmodule ObanTest do
     end
 
     test "scaling queues up" do
-      name = start_supervised_oban!(queues: [alpha: 1])
+      name = start_supervised_styx!(queues: [alpha: 1])
 
       assert :ok = Styx.scale_queue(name, queue: :alpha, limit: 5)
 
@@ -427,7 +427,7 @@ defmodule ObanTest do
     test "forwarding scaling options for alternative engines" do
       # This is an abuse of `scale` because other engines support other options and passing
       # `paused` verifies that other options are supported.
-      name = start_supervised_oban!(queues: [alpha: 1])
+      name = start_supervised_styx!(queues: [alpha: 1])
 
       assert :ok = Styx.scale_queue(name, queue: :alpha, limit: 5, paused: true)
 
@@ -437,8 +437,8 @@ defmodule ObanTest do
     end
 
     test "scaling queues only on the local node" do
-      name_1 = start_supervised_oban!(queues: [alpha: 2])
-      name_2 = start_supervised_oban!(queues: [alpha: 2])
+      name_1 = start_supervised_styx!(queues: [alpha: 2])
+      name_2 = start_supervised_styx!(queues: [alpha: 2])
 
       assert :ok = Styx.scale_queue(name_2, queue: :alpha, limit: 1, local_only: true)
 
@@ -449,7 +449,7 @@ defmodule ObanTest do
     end
 
     test "scaling queues for a specific node" do
-      name = start_supervised_oban!(node: "web.1", queues: [alpha: 2])
+      name = start_supervised_styx!(node: "web.1", queues: [alpha: 2])
 
       assert :ok = Styx.scale_queue(name, queue: :alpha, limit: 1, node: "web.2")
 
@@ -465,7 +465,7 @@ defmodule ObanTest do
     end
 
     test "trying to scale queues that don't exist" do
-      name = start_supervised_oban!(queues: [])
+      name = start_supervised_styx!(queues: [])
 
       assert :ok = Styx.scale_queue(name, queue: :alpha, limit: 1)
 
@@ -477,7 +477,7 @@ defmodule ObanTest do
 
   describe "start_queue/2" do
     test "validating options" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       assert_invalid_opts(name, :start_queue, [])
       assert_invalid_opts(name, :start_queue, queue: nil)
@@ -488,7 +488,7 @@ defmodule ObanTest do
     end
 
     test "starting queues dynamically" do
-      name = start_supervised_oban!(queues: [alpha: 9])
+      name = start_supervised_styx!(queues: [alpha: 9])
 
       assert :ok = Styx.start_queue(name, queue: :gamma, limit: 5, refresh_interval: 10)
       assert :ok = Styx.start_queue(name, queue: :delta, limit: 6, paused: true)
@@ -508,8 +508,8 @@ defmodule ObanTest do
     end
 
     test "starting queues only on the local node" do
-      name_1 = start_supervised_oban!(queues: [])
-      name_2 = start_supervised_oban!(queues: [])
+      name_1 = start_supervised_styx!(queues: [])
+      name_2 = start_supervised_styx!(queues: [])
 
       assert :ok = Styx.start_queue(name_1, queue: :alpha, limit: 1, local_only: true)
 
@@ -520,8 +520,8 @@ defmodule ObanTest do
     end
 
     test "starting queues on a specific node" do
-      name_1 = start_supervised_oban!(node: "worker.1", queues: [])
-      name_2 = start_supervised_oban!(node: "worker.2", queues: [])
+      name_1 = start_supervised_styx!(node: "worker.1", queues: [])
+      name_2 = start_supervised_styx!(node: "worker.2", queues: [])
 
       assert :ok = Styx.start_queue(name_1, queue: :alpha, limit: 1, node: "worker.1")
 
@@ -534,14 +534,14 @@ defmodule ObanTest do
 
   describe "stop_queue/2" do
     test "validating options" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       assert_invalid_opts(name, :start_queue, queue: nil)
       assert_invalid_opts(name, :start_queue, local_only: -1)
     end
 
     test "stopping individual queues" do
-      name = start_supervised_oban!(queues: [alpha: 5, delta: 5, gamma: 5])
+      name = start_supervised_styx!(queues: [alpha: 5, delta: 5, gamma: 5])
 
       assert supervised_queue?(name, "delta")
       assert supervised_queue?(name, "gamma")
@@ -557,8 +557,8 @@ defmodule ObanTest do
     end
 
     test "stopping individual queues only on the local node" do
-      name_1 = start_supervised_oban!(queues: [alpha: 1])
-      name_2 = start_supervised_oban!(queues: [alpha: 1])
+      name_1 = start_supervised_styx!(queues: [alpha: 1])
+      name_2 = start_supervised_styx!(queues: [alpha: 1])
 
       assert :ok = Styx.stop_queue(name_2, queue: :alpha, local_only: true)
 
@@ -569,7 +569,7 @@ defmodule ObanTest do
     end
 
     test "trying to stop queues that don't exist" do
-      name = start_supervised_oban!(queues: [])
+      name = start_supervised_styx!(queues: [])
 
       assert :ok = Styx.pause_queue(name, queue: :alpha)
 
@@ -607,8 +607,8 @@ defmodule ObanTest do
     assert %{name: MyStyx, repo: Styx.Test.Repo} = MyStyx.config()
   end
 
-  defp start_supervised_oban(_context) do
-    name = start_supervised_oban!(testing: :manual)
+  defp start_supervised_styx(_context) do
+    name = start_supervised_styx!(testing: :manual)
 
     {:ok, name: name}
   end

@@ -125,7 +125,7 @@ defmodule Styx.Engines.Dolphin do
 
           params = [Styx.JSON.encode!(ids), at, Styx.JSON.encode!(by)]
 
-          Repo.query!(conf, update, params, cache_statement: "oban_fetch_jobs")
+          Repo.query!(conf, update, params, cache_statement: "styx_fetch_jobs")
         end
 
         Enum.map(

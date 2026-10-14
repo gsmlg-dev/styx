@@ -91,7 +91,7 @@ end
 Attach the failure handler somewhere in your `application.ex` module:
 
 ```elixir
-:telemetry.attach("oban-errors", [:styx, :job, :exception], &ErrorReporter.handle_event/4, nil)
+:telemetry.attach("styx-errors", [:styx, :job, :exception], &ErrorReporter.handle_event/4, nil)
 ```
 
 With the failure handler attached you will start getting error reports **only

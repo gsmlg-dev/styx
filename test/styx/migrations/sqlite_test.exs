@@ -31,7 +31,7 @@ defmodule Styx.Migrations.SQLiteTest do
     start_supervised!(MigrationRepo)
 
     assert_raise RuntimeError, ~r/migrations have not been run/, fn ->
-      start_supervised_oban!(repo: MigrationRepo, testing: :manual)
+      start_supervised_styx!(repo: MigrationRepo, testing: :manual)
     end
   end
 

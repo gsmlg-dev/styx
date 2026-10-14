@@ -7,10 +7,10 @@ defmodule Styx.Peers.GlobalTest do
 
   test "only a single peer is leader" do
     # Start an instance just to provide a notifier under the Styx name
-    start_supervised_oban!(name: Styx, peer: false)
+    start_supervised_styx!(name: Styx, peer: false)
 
-    name_1 = start_supervised_oban!(peer: Global, node: "worker.1")
-    name_2 = start_supervised_oban!(peer: Global, node: "worker.2")
+    name_1 = start_supervised_styx!(peer: Global, node: "worker.1")
+    name_2 = start_supervised_styx!(peer: Global, node: "worker.2")
 
     conf_1 = %{Styx.config(name_1) | name: Styx}
     conf_2 = %{Styx.config(name_2) | name: Styx}
@@ -22,13 +22,13 @@ defmodule Styx.Peers.GlobalTest do
   end
 
   test "leadership changes when a peer terminates" do
-    start_supervised_oban!(name: Styx, peer: false)
+    start_supervised_styx!(name: Styx, peer: false)
 
     :ok = Styx.Notifier.listen(Styx, :leader)
 
     conf =
       [peer: false, node: "worker.1"]
-      |> start_supervised_oban!()
+      |> start_supervised_styx!()
       |> Styx.config()
       |> Map.put(:peer, {Global, []})
 
@@ -52,7 +52,7 @@ defmodule Styx.Peers.GlobalTest do
   test "emitting telemetry events for elections" do
     TelemetryHandler.attach_events()
 
-    start_supervised_oban!(peer: Global, node: "worker.1")
+    start_supervised_styx!(peer: Global, node: "worker.1")
 
     assert_receive {:event, [:election, :start], _measure,
                     %{leader: _, peer: Styx.Peers.Global, was_leader: nil}}

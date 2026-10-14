@@ -18,10 +18,8 @@ single line change to your Styx config.
 +  notifier: Styx.Notifiers.PG,
 ```
 
-If you're not clustered, consider using [`Styx.Notifiers.Phoenix`][onp] to send notifications
+If you're not clustered, consider using `Styx.Notifiers.Phoenix` to send notifications
 through an alternative service like Redis.
-
-[onp]: https://github.com/sorentwo/oban_notifiers_phoenix
 
 ## Disable Triggers
 
@@ -93,14 +91,6 @@ use Styx.Worker, unique: [
 +   keys: [:some_key]
 ```
 
-> #### 🌟 Pro Uniqueness {: .tip}
->
-> Oban Pro uses an [alternative mechanism for unique jobs][uniq] that works for bulk inserts, and
-> is designed for speed, correctness, scalability, and simplicity. Uniqueness is enforced and makes insertion entirely safe between processes and nodes, without the load added
-> by multiple queries.
-
-[uniq]: https://oban.pro/docs/pro/1.5.0-rc.4/Oban.Pro.Engines.Smart.html#module-enhanced-unique
-
 ## Apply Reindexing
 
 To stop oban_jobs indexes from taking up so much space on disk, use the
@@ -170,10 +160,10 @@ extremely busy (as it should be), it can starve your application of connections.
 for this is to set up another pool that’s exclusively for Styx’s internal use. The dedicated
 pool isolates Styx’s queries from the rest of the application.
 
-Start by defining a new `ObanRepo`:
+Start by defining a new `StyxRepo`:
 
 ```elixir
-defmodule MyApp.ObanRepo do
+defmodule MyApp.StyxRepo do
    use Ecto.Repo,
      adapter: Ecto.Adapters.Postgres,
      otp_app: :my_app
@@ -188,11 +178,11 @@ defmodule MyApp.Repo do
      adapter: Ecto.Adapters.Postgres,
      otp_app: :my_app
   
-+ def oban_repo do
++ def styx_repo do
 +   if in_transaction?() do
 +     MyApp.Repo
 +   else
-+     MyApp.ObanRepo
++     MyApp.StyxRepo
 +   end
 + end
 end
@@ -204,7 +194,7 @@ repo is used within a transaction:
 ```diff
  config :my_app, Styx,
 -  repo: MyApp.Repo,
-+  repo: {MyApp.ObanRepo, dynamic_repo: {MyApp.Repo, :oban_repo, []}},
++  repo: {MyApp.StyxRepo, dynamic_repo: {MyApp.Repo, :styx_repo, []}},
    ...
 ```
 

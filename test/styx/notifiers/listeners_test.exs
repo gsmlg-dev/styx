@@ -61,5 +61,5 @@ defmodule Styx.Notifiers.ListenersTest do
     assert self() in Listeners.listeners(conf, :gossip)
   end
 
-  defp start_styx!, do: start_supervised_oban!(notifier: Styx.Notifiers.Isolated)
+  defp start_styx!, do: start_supervised_styx!(notifier: Styx.Notifiers.Isolated)
 end

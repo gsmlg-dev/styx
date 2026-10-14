@@ -431,7 +431,7 @@ defmodule Styx.TestingTest do
 
   describe "with_testing_mode/2" do
     test "temporarily running with :inline mode" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       Testing.with_testing_mode(:inline, fn ->
         Styx.insert!(name, Worker.new(%{ref: 1, action: "OK"}))
@@ -441,7 +441,7 @@ defmodule Styx.TestingTest do
     end
 
     test "temporarily running with :manual mode" do
-      name = start_supervised_oban!(testing: :inline)
+      name = start_supervised_styx!(testing: :inline)
 
       Testing.with_testing_mode(:manual, fn ->
         Styx.insert!(name, Worker.new(%{ref: 1, action: "OK"}))
@@ -453,7 +453,7 @@ defmodule Styx.TestingTest do
     end
 
     test "the temporary mode cascades down to child processes" do
-      name = start_supervised_oban!(testing: :manual)
+      name = start_supervised_styx!(testing: :manual)
 
       Testing.with_testing_mode(:inline, fn ->
         fun = fn ->

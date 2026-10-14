@@ -11,13 +11,13 @@ defmodule Styx.SonarTest do
     end
 
     test "starting with an :unknown status" do
-      name = start_supervised_oban!(notifier: Styx.Notifiers.Postgres)
+      name = start_supervised_styx!(notifier: Styx.Notifiers.Postgres)
 
       assert :unknown = Notifier.status(name)
     end
 
     test "remaining isolated without any notifications" do
-      name = start_supervised_oban!(notifier: Styx.Notifiers.Postgres)
+      name = start_supervised_styx!(notifier: Styx.Notifiers.Postgres)
 
       name
       |> Registry.whereis(Sonar)
@@ -31,7 +31,7 @@ defmodule Styx.SonarTest do
     end
 
     test "reporting a solitary status with only a single node" do
-      name = start_supervised_oban!(notifier: Styx.Notifiers.Isolated)
+      name = start_supervised_styx!(notifier: Styx.Notifiers.Isolated)
 
       with_backoff(fn ->
         assert :solitary = Notifier.status(name)
@@ -41,7 +41,7 @@ defmodule Styx.SonarTest do
     end
 
     test "reporting a clustered status with multiple nodes" do
-      name = start_supervised_oban!(notifier: Styx.Notifiers.Isolated)
+      name = start_supervised_styx!(notifier: Styx.Notifiers.Isolated)
 
       with_backoff(fn -> assert :solitary = Notifier.status(name) end)
 
@@ -55,7 +55,7 @@ defmodule Styx.SonarTest do
     end
 
     test "pruning stale nodes based on the last notification time" do
-      name = start_supervised_oban!(notifier: Styx.Notifiers.Isolated)
+      name = start_supervised_styx!(notifier: Styx.Notifiers.Isolated)
       sonar = Registry.whereis(name, Sonar)
 
       # Force handle_continue/2 to run before sending notifications so the

@@ -64,7 +64,7 @@ defmodule Styx.RepoTest do
     DynamicRepo.put_dynamic_repo(nil)
 
     name =
-      start_supervised_oban!(
+      start_supervised_styx!(
         get_dynamic_repo: {DynamicRepo, :use_dynamic_repo, [repo_pid]},
         repo: DynamicRepo
       )
@@ -79,7 +79,7 @@ defmodule Styx.RepoTest do
 
     DynamicRepo.put_dynamic_repo(nil)
 
-    name = start_supervised_oban!(get_dynamic_repo: fn -> repo_pid end, repo: DynamicRepo)
+    name = start_supervised_styx!(get_dynamic_repo: fn -> repo_pid end, repo: DynamicRepo)
     conf = Styx.config(name)
 
     assert is_integer(Styx.Repo.aggregate(conf, Styx.Job, :count))

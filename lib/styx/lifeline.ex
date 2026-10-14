@@ -10,12 +10,6 @@ defmodule Styx.Lifeline do
   If an executing job has exhausted all attempts, the Lifeline plugin will mark it `discarded`
   rather than `available`.
 
-  > #### 🌟 Oban Pro's Lifeline {: .info}
-  >
-  > This plugin may transition jobs that are genuinely `executing` and cause duplicate execution.
-  > For more accurate rescuing or to rescue jobs that have exhausted retry attempts, see
-  > [`Oban.Pro.Lifeline`](https://oban.pro/docs/pro/Oban.Pro.Lifeline.html).
-
   ## Using the Plugin
 
   Rescue orphaned jobs that are still `executing` after the default of 1 hour:

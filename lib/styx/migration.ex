@@ -109,11 +109,6 @@ defmodule Styx.Migration do
   The simplest mechanism for obtaining the SQL changes is to create the migration locally and run
   `mix ecto.migrate --log-migrations-sql`. That will log all of the generated SQL, which you can
   then paste into your migration system of choice.
-
-  Alternatively, if you'd like a more automated approach, try using the [oban_migrations_sql][sql]
-  project to generate `up` and `down` SQL migrations for you.
-
-  [sql]: https://github.com/btwb/oban_migrations_sql
   """
 
   use Ecto.Migration

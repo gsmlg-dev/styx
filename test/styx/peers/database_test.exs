@@ -9,7 +9,7 @@ defmodule Styx.Peers.DatabaseTest do
   alias Styx.Test.DolphinRepo
 
   test "enforcing a single leader with the Basic engine" do
-    name = start_supervised_oban!(peer: false)
+    name = start_supervised_styx!(peer: false)
     conf = Styx.config(name)
 
     assert [_leader] =
@@ -20,7 +20,7 @@ defmodule Styx.Peers.DatabaseTest do
 
   @tag :dolphin
   test "enforcing a single leader with the Dolphin engine" do
-    name = start_supervised_oban!(engine: Styx.Engines.Dolphin, peer: false, repo: DolphinRepo)
+    name = start_supervised_styx!(engine: Styx.Engines.Dolphin, peer: false, repo: DolphinRepo)
     conf = Styx.config(name)
 
     assert [_leader] =
@@ -30,7 +30,7 @@ defmodule Styx.Peers.DatabaseTest do
   end
 
   test "retaining leadership while the lease is held" do
-    name = start_supervised_oban!(peer: false)
+    name = start_supervised_styx!(peer: false)
     conf = Styx.config(name)
 
     peer = start_supervised_peer!(conf, Peer.DB.A)
@@ -43,7 +43,7 @@ defmodule Styx.Peers.DatabaseTest do
   end
 
   test "conceding leadership after another node takes over the lease" do
-    name = start_supervised_oban!(peer: false)
+    name = start_supervised_styx!(peer: false)
     conf = Styx.config(name)
     peer = start_supervised_peer!(conf, Peer.DB.A)
 
@@ -58,7 +58,7 @@ defmodule Styx.Peers.DatabaseTest do
   end
 
   test "assuming leadership after another node's lease expires" do
-    name = start_supervised_oban!(peer: false)
+    name = start_supervised_styx!(peer: false)
     conf = Styx.config(name)
     peer = start_supervised_peer!(conf, Peer.DB.A)
 
@@ -74,7 +74,7 @@ defmodule Styx.Peers.DatabaseTest do
   test "dispatching leadership election events" do
     TelemetryHandler.attach_events()
 
-    start_supervised_oban!(peer: Database)
+    start_supervised_styx!(peer: Database)
 
     assert_receive {:event, [:election, :start], _measure,
                     %{leader: false, peer: Database, was_leader: nil}}

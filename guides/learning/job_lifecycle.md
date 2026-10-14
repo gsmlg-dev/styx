@@ -17,7 +17,7 @@ Jobs exist in one of eight possible states:
 - `cancelled` — Jobs that were purposefully stopped
 - `discarded` — Jobs that exhausted all attempts and won't be retried again
 
-![Job State Diagram](assets/oban-states.svg)
+![Job State Diagram](assets/styx-states.svg)
 
 ## Initial States
 
