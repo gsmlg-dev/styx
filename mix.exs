@@ -166,7 +166,7 @@ defmodule Styx.MixProject do
 
   defp package do
     [
-      maintainers: ["Styx Contributors"],
+      maintainers: ["GSMLG Limited"],
       licenses: ["Apache-2.0"],
       files: ~w(lib .formatter.exs mix.exs README* LICENSE* NOTICE*),
       links: %{
