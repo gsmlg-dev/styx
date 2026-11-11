@@ -40,7 +40,13 @@ defmodule Styx.Engines.Dolphin do
   @forever 60 * 60 * 24 * 365 * 99
 
   @impl Engine
-  defdelegate init(conf, opts), to: Basic
+  def init(conf, opts) do
+    if Keyword.has_key?(opts, :rate_limit),
+      do:
+        {:error,
+         ArgumentError.exception("the :rate_limit queue option requires Styx.Engines.Basic")},
+      else: Basic.init(conf, opts)
+  end
 
   @impl Engine
   defdelegate put_meta(conf, meta, key, value), to: Basic

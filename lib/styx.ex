@@ -1014,6 +1014,8 @@ defmodule Styx do
   * `:limit` - set the concurrency limit, required
   * `:paused` — set whether the queue starts in the "paused" state, optional
   * `:dispatch_cooldown` — set the average time between fetching jobs, optional
+  * `:rate_limit` — start at most `:allowed` jobs per `:period`, optional; supported by
+    `Styx.Engines.Basic`, see "Rate Limiting" there
 
   In addition, all engine-specific queue options are passed along after validation.
 

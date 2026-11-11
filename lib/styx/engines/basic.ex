@@ -7,6 +7,30 @@ defmodule Styx.Engines.Basic do
   This is the default engine, no additional configuration is necessary:
 
       Styx.start_link(repo: MyApp.Repo, queues: [default: 10])
+
+  ## Rate Limiting
+
+  A queue may limit how many jobs it starts within a sliding window, in addition to its
+  concurrency `:limit`. This keeps jobs that call an external service under that service's
+  request budget:
+
+      queues: [
+        default: 10,
+        github_api: [limit: 1, rate_limit: [allowed: 1, period: 2]],
+        github_web: [limit: 1, rate_limit: [allowed: 1, period: {30, :seconds}]]
+      ]
+
+  * `:allowed` — how many jobs may start within the window, a positive integer
+  * `:period` — the window length, in seconds or as a `{value, unit}` tuple (see `Styx.Period`)
+
+  The window is global: every node checks the jobs of the queue that were attempted within the
+  last `:period` (by `attempted_at`), while holding a transaction-level advisory lock for that
+  queue, so nodes sharing a database share one budget. A job counts once per attempt window,
+  including attempts that later snooze or fail. Jobs that are held back stay `available` and are
+  picked up when the stager next notifies the queue.
+
+  Rate limiting is only supported by this engine; `Styx.Engines.Lite` and `Styx.Engines.Dolphin`
+  reject the option.
   """
 
   @behaviour Styx.Engine
@@ -15,7 +39,9 @@ defmodule Styx.Engines.Basic do
   import DateTime, only: [utc_now: 0]
 
   alias Ecto.Changeset
-  alias Styx.{Config, Engine, Job, Repo}
+  alias Styx.{Config, Engine, Job, Period, Repo}
+
+  require Period
 
   @acking_states ["executing"]
   @cancel_states ["executing", "cancelled"]
@@ -105,8 +131,16 @@ defmodule Styx.Engines.Basic do
   end
 
   def fetch_jobs(%Config{} = conf, %{} = meta, running) do
-    demand = meta.limit - map_size(running)
+    Repo.transaction(conf, fn ->
+      demand = min(meta.limit - map_size(running), rate_allowance(conf, meta))
 
+      {meta, claim_jobs(conf, meta, demand)}
+    end)
+  end
+
+  defp claim_jobs(_conf, _meta, demand) when demand <= 0, do: []
+
+  defp claim_jobs(conf, meta, demand) do
     subset_query =
       Job
       |> select([:id])
@@ -136,12 +170,57 @@ defmodule Styx.Engines.Basic do
       inc: [attempt: 1]
     ]
 
-    Repo.transaction(conf, fn ->
-      {_count, jobs} = Repo.update_all(conf, query, updates)
+    {_count, jobs} = Repo.update_all(conf, query, updates)
 
-      {meta, jobs}
-    end)
+    jobs
   end
+
+  # How many more jobs the queue may start in the current rate window; unlimited without a
+  # `:rate_limit`. Must run inside the fetch transaction so the advisory lock spans the claim.
+  defp rate_allowance(conf, %{rate_limit: rate_limit} = meta) when is_list(rate_limit) do
+    allowed = Keyword.fetch!(rate_limit, :allowed)
+    seconds = rate_limit |> Keyword.fetch!(:period) |> Period.to_seconds()
+    since = DateTime.add(utc_now(), -seconds, :second)
+
+    :ok = lock_rate_window(conf, meta.queue)
+
+    started =
+      Job
+      |> where([j], j.queue == ^meta.queue)
+      |> where([j], j.attempted_at >= ^since)
+      |> select([j], count(j.id))
+      |> then(&Repo.one(conf, &1))
+
+    max(allowed - started, 0)
+  end
+
+  # Numbers sort before atoms, so `min(demand, :infinity)` is the demand.
+  defp rate_allowance(_conf, _meta), do: :infinity
+
+  # Serializes rate checks for one queue across nodes; released when the transaction ends. The
+  # testing sandbox runs everything in one connection, so no lock is needed there.
+  defp lock_rate_window(%{testing: :disabled} = conf, queue) do
+    key = :erlang.phash2({conf.prefix, :rate_limit, queue})
+    {:ok, _result} = Repo.query(conf, "SELECT pg_advisory_xact_lock($1)", [key])
+
+    :ok
+  end
+
+  defp lock_rate_window(_conf, _queue), do: :ok
+
+  defp valid_rate_limit?(rate_limit) do
+    Keyword.keyword?(rate_limit) and Keyword.keys(rate_limit) -- [:allowed, :period] == [] and
+      match?(
+        {:ok, allowed} when is_integer(allowed) and allowed > 0,
+        Keyword.fetch(rate_limit, :allowed)
+      ) and
+      positive_period?(Keyword.get(rate_limit, :period))
+  end
+
+  defp positive_period?(period) when Period.is_valid_period(period),
+    do: Period.to_seconds(period) > 0
+
+  defp positive_period?(_period), do: false
 
   @impl Engine
   def stage_jobs(%Config{} = conf, queryable, opts) do
@@ -445,6 +524,15 @@ defmodule Styx.Engines.Basic do
   defp validate_meta_opt({:refresh_interval, interval}) do
     if not (is_integer(interval) and interval > 0) do
       {:error, "expected :refresh_interval to be positive integer, got: #{inspect(interval)}"}
+    end
+  end
+
+  defp validate_meta_opt({:rate_limit, rate_limit}) do
+    if not valid_rate_limit?(rate_limit) do
+      {:error,
+       "expected :rate_limit to be a keyword list with :allowed (a positive integer) and " <>
+         ":period (a positive number of seconds or a {value, unit} tuple), got: " <>
+         inspect(rate_limit)}
     end
   end
 

@@ -125,6 +125,30 @@ defmodule Styx.ConfigTest do
       assert_valid(queues: [default: [limit: 1, dispatch_cooldown: 10]])
     end
 
+    test ":rate_limit queue options are validated" do
+      refute_valid(queues: [default: [limit: 1, rate_limit: 1]])
+      refute_valid(queues: [default: [limit: 1, rate_limit: [allowed: 0, period: 1]]])
+      refute_valid(queues: [default: [limit: 1, rate_limit: [allowed: 1, period: 0]]])
+
+      refute_valid(
+        queues: [default: [limit: 1, rate_limit: [allowed: 1, period: {1, :fortnight}]]]
+      )
+
+      refute_valid(queues: [default: [limit: 1, rate_limit: [allowed: 1]]])
+      refute_valid(queues: [default: [limit: 1, rate_limit: [allowed: 1, period: 1, burst: 2]]])
+
+      assert_valid(queues: [default: [limit: 1, rate_limit: [allowed: 1, period: 2]]])
+      assert_valid(queues: [default: [limit: 1, rate_limit: [allowed: 10, period: {1, :minute}]]])
+    end
+
+    test ":rate_limit queue options require the Basic engine" do
+      opts = [queues: [default: [limit: 1, rate_limit: [allowed: 1, period: 1]]]]
+
+      assert {:error, message} = validate([engine: Styx.Engines.Lite] ++ opts)
+      assert message =~ "requires Styx.Engines.Basic"
+      refute_valid([engine: Styx.Engines.Dolphin] ++ opts)
+    end
+
     test ":queues are validated as a plugin when set to a module" do
       refute_valid(queues: {NotReal, queues: [default: 1]})
       refute_valid(queues: {SomeRepo, queues: [default: 1]})
